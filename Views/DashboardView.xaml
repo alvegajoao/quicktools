@@ -1,0 +1,65 @@
+<UserControl x:Class="QuickTools.Views.DashboardView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <StackPanel>
+        <TextBlock Text="Dashboard" Style="{StaticResource PageTitleStyle}" />
+        <TextBlock Text="Quick overview and safe shortcuts." Style="{StaticResource MutedTextStyle}" Margin="0,0,0,24" />
+
+        <UniformGrid Columns="2">
+            <Border Style="{StaticResource CardStyle}">
+                <StackPanel>
+                    <StackPanel>
+                        <TextBlock Text="Auto Clicker" FontSize="16" FontWeight="SemiBold" />
+                        <TextBlock Text="{Binding AutoClickerStatus}" FontSize="26" FontWeight="SemiBold" Margin="0,3,0,0" />
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="{Binding AutoClickerElapsedTime, StringFormat=Time: {0}}"
+                                   Style="{StaticResource MutedTextStyle}"
+                                   Margin="0,0,14,0" />
+                        <TextBlock Text="{Binding AutoClickerHotkey, StringFormat=Hotkey: {0}}"
+                                   Style="{StaticResource MutedTextStyle}" />
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal" Margin="0,18,0,0">
+                        <Button Content="Start" Command="{Binding StartAutoClickerCommand}" Margin="0,0,10,0" />
+                        <Button Content="Stop" Command="{Binding StopAutoClickerCommand}" Style="{StaticResource SecondaryButtonStyle}" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource CardStyle}">
+                <StackPanel>
+                    <TextBlock Text="Quick Toggle" Style="{StaticResource SectionTitleStyle}" />
+                    <TextBlock Text="{Binding QuickToggleStatus}" FontSize="28" FontWeight="SemiBold" />
+                    <TextBlock Text="Fast access to system actions through the hotkey wheel."
+                               Style="{StaticResource MutedTextStyle}"
+                               Margin="0,12,0,0" />
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource CardStyle}">
+                <StackPanel>
+                    <TextBlock Text="Current Power Plan" Style="{StaticResource SectionTitleStyle}" />
+                    <TextBlock Text="{Binding CurrentPowerPlan}" FontSize="24" FontWeight="SemiBold" />
+                    <StackPanel Orientation="Horizontal" Margin="0,18,0,0">
+                        <Button Content="Balanced" Command="{Binding SetBalancedCommand}" Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,10,0" />
+                        <Button Content="High performance" Command="{Binding SetHighPerformanceCommand}" Style="{StaticResource SecondaryButtonStyle}" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource CardStyle}">
+                <StackPanel>
+                    <TextBlock Text="Next Scheduled Action" Style="{StaticResource SectionTitleStyle}" />
+                    <TextBlock Text="{Binding NextScheduledAction}" FontSize="22" FontWeight="SemiBold" />
+                    <Button Content="Pause all events"
+                            Command="{Binding CancelShutdownCommand}"
+                            Style="{StaticResource SecondaryButtonStyle}"
+                            Margin="0,18,0,0"
+                            HorizontalAlignment="Left" />
+                </StackPanel>
+            </Border>
+        </UniformGrid>
+    </StackPanel>
+</UserControl>

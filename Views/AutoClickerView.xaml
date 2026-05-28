@@ -1,0 +1,312 @@
+<UserControl x:Class="QuickTools.Views.AutoClickerView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <UserControl.Resources>
+        <Style x:Key="MouseButtonStyle" TargetType="Button" BasedOn="{StaticResource SecondaryButtonStyle}">
+            <Setter Property="MinHeight" Value="92" />
+            <Setter Property="Padding" Value="10" />
+            <Setter Property="Background" Value="{DynamicResource GlassAltBrush}" />
+        </Style>
+        <Style x:Key="CursorTileStyle" TargetType="ListBoxItem">
+            <Setter Property="Margin" Value="0,0,10,10" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="HorizontalContentAlignment" Value="Center" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ListBoxItem">
+                        <Border x:Name="Root"
+                                Width="128"
+                                Height="102"
+                                CornerRadius="16"
+                                Padding="12"
+                                Background="{DynamicResource GlassAltBrush}"
+                                BorderBrush="{DynamicResource BorderBrushSoft}"
+                                BorderThickness="1">
+                            <ContentPresenter HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="Root" Property="Background" Value="#FFEAF1FF" />
+                                <Setter TargetName="Root" Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Root" Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+
+    <StackPanel>
+        <TextBlock Text="Auto Clicker" Style="{StaticResource PageTitleStyle}" />
+        <TextBlock Text="Fast, visible click automation with safe controls." Style="{StaticResource MutedTextStyle}" Margin="0,0,0,24" />
+
+        <Border Style="{StaticResource CardStyle}" Margin="0,0,16,18">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <Border Width="58"
+                            Height="58"
+                            CornerRadius="18"
+                            Background="#FFEAF1FF"
+                            BorderBrush="{StaticResource AccentBrush}"
+                            BorderThickness="1"
+                            Margin="0,0,16,0">
+                        <TextBlock Text="&#xE7C9;"
+                                   FontFamily="Segoe MDL2 Assets"
+                                   Foreground="{StaticResource AccentBrush}"
+                                   FontSize="24"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center" />
+                    </Border>
+                    <StackPanel>
+                        <TextBlock Text="{Binding Status}" FontSize="30" FontWeight="SemiBold" />
+                        <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
+                            <TextBlock Text="{Binding ElapsedTime, StringFormat=Active time: {0}}" Style="{StaticResource MutedTextStyle}" Margin="0,0,18,0" />
+                            <TextBlock Text="{Binding Hotkey, StringFormat=Hotkey: {0}}" Style="{StaticResource MutedTextStyle}" />
+                        </StackPanel>
+                    </StackPanel>
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Button Content="Start" Command="{Binding StartCommand}" Height="48" MinWidth="128" Margin="0,0,10,0" />
+                    <Button Content="Stop" Command="{Binding StopCommand}" Style="{StaticResource DangerButtonStyle}" Height="48" MinWidth="128" />
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1.05*" />
+                <ColumnDefinition Width="0.95*" />
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="0">
+                <Border Style="{StaticResource CardStyle}">
+                    <StackPanel>
+                        <Grid Margin="0,0,0,18">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="Speed" Style="{StaticResource SectionTitleStyle}" Margin="0,0,0,4" />
+                                <TextBlock Text="{Binding IntervalLabel}" Style="{StaticResource MutedTextStyle}" />
+                            </StackPanel>
+                            <Border Grid.Column="1"
+                                    Background="#FFEAF1FF"
+                                    BorderBrush="{StaticResource AccentBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="14"
+                                    Padding="14,8"
+                                    VerticalAlignment="Top">
+                                <TextBlock Text="{Binding SpeedLabel}" Foreground="{StaticResource AccentBrush}" FontWeight="SemiBold" />
+                            </Border>
+                        </Grid>
+
+                        <Slider Minimum="0"
+                                Maximum="100"
+                                TickFrequency="10"
+                                IsSnapToTickEnabled="False"
+                                Value="{Binding SpeedPercent, UpdateSourceTrigger=PropertyChanged}"
+                                Margin="0,6,0,4" />
+
+                        <Grid>
+                            <TextBlock Text="Slow" Style="{StaticResource MutedTextStyle}" HorizontalAlignment="Left" />
+                            <TextBlock Text="Fast" Style="{StaticResource MutedTextStyle}" HorizontalAlignment="Right" />
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <Border Style="{StaticResource CardStyle}">
+                    <StackPanel>
+                        <TextBlock Text="Mouse button" Style="{StaticResource SectionTitleStyle}" />
+                        <Grid Width="390" Height="260" HorizontalAlignment="Center">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="0.62*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Border Grid.ColumnSpan="3"
+                                    Width="300"
+                                    Height="230"
+                                    CornerRadius="116"
+                                    Background="{DynamicResource GlassAltBrush}"
+                                    BorderBrush="{DynamicResource BorderBrushSoft}"
+                                    BorderThickness="1"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center" />
+                            <Border Grid.ColumnSpan="3"
+                                    Width="224"
+                                    Height="1"
+                                    Background="{DynamicResource BorderBrushSoft}"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    Margin="0,-50,0,0" />
+                            <Border Grid.ColumnSpan="3"
+                                    Width="1"
+                                    Height="96"
+                                    Background="{DynamicResource BorderBrushSoft}"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Top"
+                                    Margin="-72,34,0,0" />
+                            <Border Grid.ColumnSpan="3"
+                                    Width="1"
+                                    Height="96"
+                                    Background="{DynamicResource BorderBrushSoft}"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Top"
+                                    Margin="72,34,0,0" />
+                            <Border Grid.Column="1"
+                                    Width="28"
+                                    Height="72"
+                                    CornerRadius="14"
+                                    Background="#FFFFFFFF"
+                                    BorderBrush="{DynamicResource BorderBrushSoft}"
+                                    BorderThickness="1"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Top"
+                                    Margin="0,44,0,0" />
+                            <Button Grid.Column="0"
+                                    Command="{Binding SelectMouseButtonCommand}"
+                                    CommandParameter="Left Click"
+                                    Width="112"
+                                    Height="170"
+                                    HorizontalAlignment="Right"
+                                    VerticalAlignment="Top"
+                                    Margin="0,36,4,0">
+                                <Button.Style>
+                                    <Style TargetType="Button" BasedOn="{StaticResource SecondaryButtonStyle}">
+                                        <Setter Property="Background" Value="#00FFFFFF" />
+                                        <Setter Property="MinHeight" Value="150" />
+                                        <Setter Property="Padding" Value="12" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsLeftClickSelected}" Value="True">
+                                                <Setter Property="Background" Value="#FFEAF1FF" />
+                                                <Setter Property="Foreground" Value="{StaticResource AccentBrush}" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                                <StackPanel VerticalAlignment="Center">
+                                    <TextBlock Text="Left" HorizontalAlignment="Center" FontWeight="SemiBold" FontSize="17" />
+                                    <TextBlock Text="Primary" HorizontalAlignment="Center" Style="{StaticResource MutedTextStyle}" Margin="0,6,0,0" />
+                                </StackPanel>
+                            </Button>
+
+                            <Button Grid.Column="1"
+                                    Command="{Binding SelectMouseButtonCommand}"
+                                    CommandParameter="Middle Click"
+                                    Width="74"
+                                    Height="170"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Top"
+                                    Margin="0,36,0,0">
+                                <Button.Style>
+                                    <Style TargetType="Button" BasedOn="{StaticResource SecondaryButtonStyle}">
+                                        <Setter Property="Background" Value="#00FFFFFF" />
+                                        <Setter Property="MinHeight" Value="150" />
+                                        <Setter Property="Padding" Value="8" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsMiddleClickSelected}" Value="True">
+                                                <Setter Property="Background" Value="#FFEAF1FF" />
+                                                <Setter Property="Foreground" Value="{StaticResource AccentBrush}" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                                <StackPanel VerticalAlignment="Center">
+                                    <TextBlock Text="Middle" HorizontalAlignment="Center" FontWeight="SemiBold" FontSize="16" />
+                                    <TextBlock Text="Wheel" HorizontalAlignment="Center" Style="{StaticResource MutedTextStyle}" Margin="0,6,0,0" />
+                                </StackPanel>
+                            </Button>
+
+                            <Button Grid.Column="2"
+                                    Command="{Binding SelectMouseButtonCommand}"
+                                    CommandParameter="Right Click"
+                                    Width="112"
+                                    Height="170"
+                                    HorizontalAlignment="Left"
+                                    VerticalAlignment="Top"
+                                    Margin="4,36,0,0">
+                                <Button.Style>
+                                    <Style TargetType="Button" BasedOn="{StaticResource SecondaryButtonStyle}">
+                                        <Setter Property="Background" Value="#00FFFFFF" />
+                                        <Setter Property="MinHeight" Value="150" />
+                                        <Setter Property="Padding" Value="12" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsRightClickSelected}" Value="True">
+                                                <Setter Property="Background" Value="#FFEAF1FF" />
+                                                <Setter Property="Foreground" Value="{StaticResource AccentBrush}" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                                <StackPanel VerticalAlignment="Center">
+                                    <TextBlock Text="Right" HorizontalAlignment="Center" FontWeight="SemiBold" FontSize="17" />
+                                    <TextBlock Text="Secondary" HorizontalAlignment="Center" Style="{StaticResource MutedTextStyle}" Margin="0,6,0,0" />
+                                </StackPanel>
+                            </Button>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <Border Style="{StaticResource CardStyle}">
+                    <StackPanel>
+                        <TextBlock Text="Click type" Style="{StaticResource SectionTitleStyle}" />
+                        <ComboBox ItemsSource="{Binding ClickTypes}" SelectedItem="{Binding SelectedClickType}" MinWidth="240" HorizontalAlignment="Left" />
+                        <CheckBox Content="Use current mouse position" IsChecked="{Binding UseCurrentMousePosition}" Margin="0,20,0,0" />
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+
+            <StackPanel Grid.Column="1">
+                <Border Style="{StaticResource CardStyle}">
+                    <StackPanel>
+                        <TextBlock Text="Active cursor" Style="{StaticResource SectionTitleStyle}" />
+                        <ListBox ItemsSource="{Binding ActiveCursorOptions}"
+                                 SelectedValuePath="CursorKey"
+                                 SelectedValue="{Binding SelectedActiveCursor}"
+                                 ItemContainerStyle="{StaticResource CursorTileStyle}"
+                                 BorderThickness="0"
+                                 Background="Transparent"
+                                 HorizontalContentAlignment="Center"
+                                 ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                            <ListBox.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <WrapPanel HorizontalAlignment="Center" />
+                                </ItemsPanelTemplate>
+                            </ListBox.ItemsPanel>
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                                        <Viewbox Width="32" Height="32" HorizontalAlignment="Center">
+                                            <Path Data="{Binding IconData}"
+                                                  Stroke="{StaticResource AccentBrush}"
+                                                  StrokeThickness="1.8"
+                                                  StrokeLineJoin="Round"
+                                                  StrokeStartLineCap="Round"
+                                                  StrokeEndLineCap="Round"
+                                                  Stretch="Uniform" />
+                                        </Viewbox>
+                                        <TextBlock Text="{Binding Name}"
+                                                   HorizontalAlignment="Center"
+                                                   Margin="0,10,0,0"
+                                                   FontWeight="SemiBold" />
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </StackPanel>
+                </Border>
+
+            </StackPanel>
+        </Grid>
+    </StackPanel>
+</UserControl>

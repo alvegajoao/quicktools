@@ -1,0 +1,178 @@
+<UserControl x:Class="QuickTools.Views.QuickToggleView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <UserControl.Resources>
+        <Style x:Key="ActionRowStyle" TargetType="Border">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="CornerRadius" Value="12" />
+            <Setter Property="Padding" Value="10,9" />
+            <Setter Property="Margin" Value="0,0,0,2" />
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="{DynamicResource SurfaceAltBrush}" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </UserControl.Resources>
+
+    <StackPanel>
+        <TextBlock Text="Quick Toggle" Style="{StaticResource PageTitleStyle}" />
+        <TextBlock Text="Assign system actions to the hotkey wheel for fast access."
+                   Style="{StaticResource MutedTextStyle}"
+                   Margin="0,0,0,24" />
+
+        <Border Style="{StaticResource CardStyle}" Margin="0,0,16,18">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <Border Width="58"
+                            Height="58"
+                            CornerRadius="18"
+                            Background="#FFEAF1FF"
+                            BorderBrush="{StaticResource AccentBrush}"
+                            BorderThickness="1"
+                            Margin="0,0,16,0">
+                        <TextBlock Text="&#xE7C9;"
+                                   FontFamily="Segoe MDL2 Assets"
+                                   Foreground="{StaticResource AccentBrush}"
+                                   FontSize="24"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center" />
+                    </Border>
+
+                    <StackPanel>
+                        <TextBlock Text="{Binding Status}" FontSize="30" FontWeight="SemiBold" />
+                        <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
+                            <TextBlock Text="{Binding Hotkey, StringFormat=Hotkey: {0}}"
+                                       Style="{StaticResource MutedTextStyle}"
+                                       Margin="0,0,18,0" />
+                            <TextBlock Text="{Binding WheelCountLabel}"
+                                       Style="{StaticResource MutedTextStyle}" />
+                        </StackPanel>
+                        <TextBlock Text="{Binding GlobalStatus}"
+                                   Style="{StaticResource MutedTextStyle}"
+                                   Margin="0,4,0,0" />
+                    </StackPanel>
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Button Content="Enable"
+                            Command="{Binding EnableCommand}"
+                            Height="48"
+                            MinWidth="128"
+                            Margin="0,0,10,0" />
+                    <Button Content="Disable"
+                            Command="{Binding DisableCommand}"
+                            Style="{StaticResource DangerButtonStyle}"
+                            Height="48"
+                            MinWidth="128" />
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <Border Style="{StaticResource CardStyle}" Margin="0,0,16,18">
+            <StackPanel>
+                <Grid Margin="0,0,0,16">
+                    <TextBlock Text="Available actions" Style="{StaticResource SectionTitleStyle}" Margin="0" />
+                    <TextBlock Text="Maximum 8 on wheel"
+                               Style="{StaticResource MutedTextStyle}"
+                               HorizontalAlignment="Right"
+                               VerticalAlignment="Bottom" />
+                </Grid>
+
+                <ItemsControl ItemsSource="{Binding AllActions}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Style="{StaticResource ActionRowStyle}">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <Border Grid.Column="0"
+                                            Width="44"
+                                            Height="44"
+                                            CornerRadius="14"
+                                            Background="#FFEAF1FF"
+                                            BorderBrush="{StaticResource AccentBrush}"
+                                            BorderThickness="1"
+                                            Margin="0,0,14,0">
+                                        <TextBlock Text="{Binding Icon}"
+                                                   FontFamily="Segoe MDL2 Assets"
+                                                   FontSize="20"
+                                                   Foreground="{StaticResource AccentBrush}"
+                                                   HorizontalAlignment="Center"
+                                                   VerticalAlignment="Center" />
+                                    </Border>
+
+                                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                        <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="14" />
+                                        <TextBlock Text="{Binding Description}"
+                                                   Style="{StaticResource MutedTextStyle}"
+                                                   Margin="0,2,0,0" />
+                                    </StackPanel>
+
+                                    <Button Grid.Column="2"
+                                            Command="{Binding DataContext.ToggleWheelCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                            CommandParameter="{Binding}"
+                                            MinHeight="30"
+                                            Padding="12,4"
+                                            FontSize="12"
+                                            FontWeight="SemiBold"
+                                            Cursor="Hand"
+                                            VerticalAlignment="Center">
+                                        <Button.Style>
+                                            <Style TargetType="Button">
+                                                <Setter Property="Content" Value="+ Wheel" />
+                                                <Setter Property="Foreground" Value="{DynamicResource MutedTextBrush}" />
+                                                <Setter Property="Background" Value="{DynamicResource SurfaceAltBrush}" />
+                                                <Setter Property="BorderBrush" Value="{DynamicResource BorderBrushSoft}" />
+                                                <Setter Property="BorderThickness" Value="1" />
+                                                <Setter Property="Template">
+                                                    <Setter.Value>
+                                                        <ControlTemplate TargetType="Button">
+                                                            <Border x:Name="Bg"
+                                                                    Background="{TemplateBinding Background}"
+                                                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                                                    CornerRadius="10"
+                                                                    Padding="{TemplateBinding Padding}">
+                                                                <ContentPresenter HorizontalAlignment="Center"
+                                                                                  VerticalAlignment="Center"
+                                                                                  TextElement.Foreground="{TemplateBinding Foreground}" />
+                                                            </Border>
+                                                            <ControlTemplate.Triggers>
+                                                                <Trigger Property="IsMouseOver" Value="True">
+                                                                    <Setter TargetName="Bg" Property="Opacity" Value="0.82" />
+                                                                </Trigger>
+                                                            </ControlTemplate.Triggers>
+                                                        </ControlTemplate>
+                                                    </Setter.Value>
+                                                </Setter>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsOnWheel}" Value="True">
+                                                        <Setter Property="Content" Value="On wheel" />
+                                                        <Setter Property="Foreground" Value="White" />
+                                                        <Setter Property="Background" Value="{DynamicResource AccentBrush}" />
+                                                        <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
+                                                        <Setter Property="BorderThickness" Value="0" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Button.Style>
+                                    </Button>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
+        </Border>
+    </StackPanel>
+</UserControl>
