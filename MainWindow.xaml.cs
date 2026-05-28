@@ -13,6 +13,7 @@ public partial class MainWindow : Window
     private readonly HotkeyService _hotkeyService = new();
     private readonly HotkeyService _quickToggleHotkeyService = new(9061);
     private readonly SystemCursorService _systemCursorService = new();
+    private readonly UpdateService _updateService = new();
     private readonly QuickPickerWindow _quickPickerWindow;
 
     public MainWindow()
@@ -42,6 +43,19 @@ public partial class MainWindow : Window
         ApplyTheme();
         await _viewModel.Dashboard.RefreshAsync();
         await _viewModel.PowerModes.RefreshAsync();
+        _ = CheckForUpdatesAsync();
+    }
+
+    private async Task CheckForUpdatesAsync()
+    {
+        try
+        {
+            await _updateService.CheckForUpdatesAsync(this);
+        }
+        catch
+        {
+            // Update checks should never interrupt normal app usage.
+        }
     }
 
     private void RegisterHotkey()

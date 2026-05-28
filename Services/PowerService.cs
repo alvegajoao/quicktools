@@ -23,14 +23,53 @@ public sealed class PowerService
     public IReadOnlyList<ScheduledEvent> ScheduledEvents =>
         _events.Values.Select(value => value.Event).OrderBy(item => item.ExecuteAt).ToList();
 
-    public ScheduledEvent AddEvent(string action, DateTime executeAt)
+    public ScheduledEvent AddEvent(string action, DateTime executeAt, bool isActive = true)
     {
-        var scheduledEvent = new ScheduledEvent { Action = action, ExecuteAt = executeAt };
+        var scheduledEvent = new ScheduledEvent { Action = action, ExecuteAt = executeAt, IsActive = isActive };
         var cts = new CancellationTokenSource();
         _events[scheduledEvent.Id] = (scheduledEvent, cts);
-        _ = RunEventAsync(scheduledEvent, cts.Token);
+        if (isActive)
+        {
+            _ = RunEventAsync(scheduledEvent, cts.Token);
+        }
+
         EventsChanged?.Invoke(this, EventArgs.Empty);
         return scheduledEvent;
+    }
+
+    public void LoadEvents(IEnumerable<ScheduledPowerEventSetting> savedEvents)
+    {
+        foreach (var (_, cts) in _events.Values)
+        {
+            cts.Cancel();
+            cts.Dispose();
+        }
+
+        _events.Clear();
+
+        foreach (var savedEvent in savedEvents)
+        {
+            if (savedEvent.ExecuteAt <= DateTime.Now)
+            {
+                continue;
+            }
+
+            var scheduledEvent = new ScheduledEvent
+            {
+                Action = savedEvent.Action,
+                ExecuteAt = savedEvent.ExecuteAt,
+                IsActive = savedEvent.IsActive
+            };
+            var cts = new CancellationTokenSource();
+            _events[scheduledEvent.Id] = (scheduledEvent, cts);
+
+            if (scheduledEvent.IsActive)
+            {
+                _ = RunEventAsync(scheduledEvent, cts.Token);
+            }
+        }
+
+        EventsChanged?.Invoke(this, EventArgs.Empty);
     }
 
     public void RemoveEvent(string id)

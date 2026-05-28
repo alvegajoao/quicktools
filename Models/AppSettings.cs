@@ -12,6 +12,7 @@ public sealed class AppSettings
     public bool QuickToggleEnabled { get; set; }
     public string QuickToggleHotkey { get; set; } = "F7";
     public List<string> QuickToggleWheelIds { get; set; } = [];
+    public List<ScheduledPowerEventSetting> ScheduledPowerEvents { get; set; } = [];
     public string DataFolder { get; set; } = "";
     public bool StartWithWindows { get; set; }
 }

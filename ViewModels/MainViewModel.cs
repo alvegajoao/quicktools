@@ -38,13 +38,15 @@ public sealed class MainViewModel : ObservableObject
         };
         QuickToggle.LoadWheelIds(Settings.QuickToggleWheelIds);
 
-        Dashboard = new DashboardViewModel(AutoClickerService, PowerService, AutoClicker)
+        Dashboard = new DashboardViewModel(AutoClickerService, PowerService, AutoClicker, QuickToggle)
         {
             IsQuickToggleActive = QuickToggle.IsEnabled
         };
         QuickToggle.PropertyChanged += OnQuickTogglePropertyChanged;
 
         PowerScheduler = new PowerSchedulerViewModel(PowerService);
+        PowerService.EventsChanged += OnPowerEventsChanged;
+        PowerService.LoadEvents(Settings.ScheduledPowerEvents);
         PowerModes = new PowerModesViewModel(PowerService);
         SettingsViewModel = new SettingsViewModel(SettingsService, Settings);
         SettingsViewModel.SettingsSaved += (_, _) =>
@@ -62,7 +64,7 @@ public sealed class MainViewModel : ObservableObject
         [
             new NavigationItem { Title = "Dashboard", Icon = "\uE80F", ViewModel = Dashboard },
             new NavigationItem { Title = "Auto Clicker", Icon = "\uE7C9", ViewModel = AutoClicker },
-            new NavigationItem { Title = "Quick Toggle", Icon = "\uE7C9", ViewModel = QuickToggle },
+            new NavigationItem { Title = "Quick Toggle", Icon = "\uE8A7", ViewModel = QuickToggle },
             new NavigationItem { Title = "Power Scheduler", Icon = "\uE823", ViewModel = PowerScheduler },
             new NavigationItem { Title = "Power Modes", Icon = "\uE945", ViewModel = PowerModes },
             new NavigationItem { Title = "Settings", Icon = "\uE713", ViewModel = SettingsViewModel }
@@ -117,6 +119,20 @@ public sealed class MainViewModel : ObservableObject
             Settings.QuickToggleWheelIds = QuickToggle.GetWheelIds().ToList();
             SettingsService.Save(Settings);
         }
+    }
+
+    private void OnPowerEventsChanged(object? sender, EventArgs e)
+    {
+        Settings.ScheduledPowerEvents = PowerService.ScheduledEvents
+            .Where(item => item.ExecuteAt > DateTime.Now)
+            .Select(item => new ScheduledPowerEventSetting
+            {
+                Action = item.Action,
+                ExecuteAt = item.ExecuteAt,
+                IsActive = item.IsActive
+            })
+            .ToList();
+        SettingsService.Save(Settings);
     }
 
     private void OnAutoClickerPropertyChanged(object? sender, PropertyChangedEventArgs e)
