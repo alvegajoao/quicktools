@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Windows;
+using QuickTools.Views;
 
 namespace QuickTools.Services;
 
@@ -46,19 +47,26 @@ public sealed class UpdateService
             return;
         }
 
-        var result = System.Windows.MessageBox.Show(
+        var shouldInstall = UpdateDialog.ShowConfirmation(
             owner,
-            "A new QuickTools update is available. Install it now?",
             "QuickTools update",
-            MessageBoxButton.YesNo,
-            MessageBoxImage.Information);
+            "A new QuickTools update is available. Install it now?",
+            "Install update",
+            "Later");
 
-        if (result != MessageBoxResult.Yes)
+        if (!shouldInstall)
         {
             return;
         }
 
-        await DownloadAndInstallAsync(asset.BrowserDownloadUrl);
+        try
+        {
+            await DownloadAndInstallAsync(asset.BrowserDownloadUrl);
+        }
+        catch (Exception ex)
+        {
+            UpdateDialog.ShowError(owner, "QuickTools update", $"QuickTools could not install the update.\n\n{ex.Message}");
+        }
     }
 
     private static bool IsPublishedExecutable()
@@ -115,24 +123,33 @@ public sealed class UpdateService
         }
 
         ZipFile.ExtractToDirectory(zipPath, extractPath, overwriteFiles: true);
-        var payloadPath = Directory.GetDirectories(extractPath).FirstOrDefault() ?? extractPath;
+        var payloadPath = GetPayloadPath(extractPath);
         var currentProcessId = Environment.ProcessId;
 
         var script = $$"""
         $ErrorActionPreference = 'Stop'
+        Add-Type -AssemblyName PresentationFramework
         $processId = {{currentProcessId}}
         $payload = '{{EscapePowerShellPath(payloadPath)}}'
         $target = '{{EscapePowerShellPath(installDirectory)}}'
         $exe = Join-Path $target 'QuickTools.exe'
 
         try {
-            Wait-Process -Id $processId -Timeout 30
-        } catch {
-            Stop-Process -Id $processId -Force -ErrorAction SilentlyContinue
-        }
+            try {
+                Wait-Process -Id $processId -Timeout 30
+            } catch {
+                Stop-Process -Id $processId -Force -ErrorAction SilentlyContinue
+            }
 
-        Copy-Item -Path (Join-Path $payload '*') -Destination $target -Recurse -Force
-        Start-Process -FilePath $exe
+            Copy-Item -Path (Join-Path $payload '*') -Destination $target -Recurse -Force
+            Start-Process -FilePath $exe
+        } catch {
+            [System.Windows.MessageBox]::Show(
+                "QuickTools could not finish installing the update.`n`n$($_.Exception.Message)",
+                "QuickTools update",
+                [System.Windows.MessageBoxButton]::OK,
+                [System.Windows.MessageBoxImage]::Error) | Out-Null
+        }
         """;
 
         await File.WriteAllTextAsync(scriptPath, script);
@@ -149,6 +166,20 @@ public sealed class UpdateService
     private static string EscapePowerShellPath(string path)
     {
         return path.Replace("'", "''");
+    }
+
+    private static string GetPayloadPath(string extractPath)
+    {
+        var rootFiles = Directory.GetFiles(extractPath);
+        if (rootFiles.Length > 0)
+        {
+            return extractPath;
+        }
+
+        var rootDirectories = Directory.GetDirectories(extractPath);
+        return rootDirectories.Length == 1
+            ? rootDirectories[0]
+            : extractPath;
     }
 
     private static readonly JsonSerializerOptions JsonOptions = new()
