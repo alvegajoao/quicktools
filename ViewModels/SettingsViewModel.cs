@@ -140,7 +140,7 @@ public sealed class SettingsViewModel : ObservableObject
 
     private void Export()
     {
-        Clipboard.SetText(_settingsService.ExportSettings(_settings));
+        System.Windows.Clipboard.SetText(_settingsService.ExportSettings(_settings));
         Message = "Settings JSON copied to clipboard.";
     }
 
@@ -148,13 +148,13 @@ public sealed class SettingsViewModel : ObservableObject
     {
         try
         {
-            if (!Clipboard.ContainsText())
+            if (!System.Windows.Clipboard.ContainsText())
             {
                 Message = "Clipboard does not contain JSON.";
                 return;
             }
 
-            var imported = _settingsService.ImportSettings(Clipboard.GetText());
+            var imported = _settingsService.ImportSettings(System.Windows.Clipboard.GetText());
             SelectedTheme = imported.Theme;
             StartWithWindows = imported.StartWithWindows;
             AutoClickerHotkey  = imported.AutoClickerHotkey;

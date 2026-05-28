@@ -2,7 +2,7 @@ using System.Windows;
 
 namespace QuickTools;
 
-public partial class App : Application
+public partial class App : System.Windows.Application
 {
     private Mutex? _singleInstanceMutex;
 
@@ -11,14 +11,14 @@ public partial class App : Application
         _singleInstanceMutex = new Mutex(true, "QuickTools.SingleInstance", out var createdNew);
         if (!createdNew)
         {
-            MessageBox.Show("QuickTools is already running.", "QuickTools", MessageBoxButton.OK, MessageBoxImage.Information);
+            System.Windows.MessageBox.Show("QuickTools is already running.", "QuickTools", MessageBoxButton.OK, MessageBoxImage.Information);
             Shutdown();
             return;
         }
 
         DispatcherUnhandledException += (_, args) =>
         {
-            MessageBox.Show(args.Exception.Message, "QuickTools error", MessageBoxButton.OK, MessageBoxImage.Error);
+            System.Windows.MessageBox.Show(args.Exception.Message, "QuickTools error", MessageBoxButton.OK, MessageBoxImage.Error);
             args.Handled = true;
         };
 

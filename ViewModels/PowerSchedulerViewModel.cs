@@ -18,7 +18,7 @@ public sealed class PowerSchedulerViewModel : ObservableObject
     public PowerSchedulerViewModel(PowerService powerService)
     {
         _powerService = powerService;
-        _powerService.EventsChanged += (_, _) => Application.Current.Dispatcher.Invoke(SyncEvents);
+        _powerService.EventsChanged += (_, _) => System.Windows.Application.Current.Dispatcher.Invoke(SyncEvents);
 
         AddEventCommand = new RelayCommand(_ => AddEvent());
         RemoveEventCommand = new RelayCommand(parameter => RemoveEvent(parameter as ScheduledEvent));

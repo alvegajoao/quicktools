@@ -46,7 +46,7 @@ public sealed class UpdateService
             return;
         }
 
-        var result = MessageBox.Show(
+        var result = System.Windows.MessageBox.Show(
             owner,
             "A new QuickTools update is available. Install it now?",
             "QuickTools update",
@@ -143,7 +143,7 @@ public sealed class UpdateService
             WindowStyle = ProcessWindowStyle.Hidden
         });
 
-        Application.Current.Dispatcher.Invoke(() => Application.Current.Shutdown());
+        System.Windows.Application.Current.Dispatcher.Invoke(() => System.Windows.Application.Current.Shutdown());
     }
 
     private static string EscapePowerShellPath(string path)

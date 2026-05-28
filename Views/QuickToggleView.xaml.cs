@@ -2,7 +2,7 @@ using System.Windows.Controls;
 
 namespace QuickTools.Views;
 
-public partial class QuickToggleView : UserControl
+public partial class QuickToggleView : System.Windows.Controls.UserControl
 {
     public QuickToggleView()
     {

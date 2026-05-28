@@ -8,6 +8,11 @@ using System.Windows.Shapes;
 using System.Windows.Threading;
 using QuickTools.Models;
 using QuickTools.Services;
+using MediaColor = System.Windows.Media.Color;
+using MediaFontFamily = System.Windows.Media.FontFamily;
+using WpfPoint = System.Windows.Point;
+using WpfKeyEventArgs = System.Windows.Input.KeyEventArgs;
+using WpfSize = System.Windows.Size;
 
 namespace QuickTools;
 
@@ -22,16 +27,16 @@ public partial class QuickPickerWindow : Window
     private const double LabelDist = Radius + TileSize / 2 + 14; // ~117 — radialmente além do tile
 
     // Paleta
-    private static readonly Color AccentHover = Color.FromRgb(29, 78, 216);
-    private static readonly Color TileNormal  = Color.FromArgb(185, 37, 99, 235);
-    private static readonly Color LabelBg     = Color.FromArgb(235, 15, 50, 160);
-    private static readonly Color DotSmall    = Color.FromArgb(110, 255, 255, 255);
-    private static readonly Color DotLarge    = Color.FromArgb(210, 37, 99, 235);
-    private static readonly Color IconWhite   = Colors.White;
+    private static readonly MediaColor AccentHover = MediaColor.FromRgb(29, 78, 216);
+    private static readonly MediaColor TileNormal  = MediaColor.FromArgb(185, 37, 99, 235);
+    private static readonly MediaColor LabelBg     = MediaColor.FromArgb(235, 15, 50, 160);
+    private static readonly MediaColor DotSmall    = MediaColor.FromArgb(110, 255, 255, 255);
+    private static readonly MediaColor DotLarge    = MediaColor.FromArgb(210, 37, 99, 235);
+    private static readonly MediaColor IconWhite   = Colors.White;
 
     // Cursor personalizado
     private Ellipse?         _cursorDot;
-    private Point            _mousePos = new(Center, Center);
+    private WpfPoint         _mousePos = new(Center, Center);
     private const double     DotSizeNormal = 14;
     private const double     DotSizeHover  = 28;
     private DispatcherTimer? _mouseWatchTimer;
@@ -86,7 +91,7 @@ public partial class QuickPickerWindow : Window
         // Posição do rato relativa ao Canvas
         var wx = pt.X / scale - Left;
         var wy = pt.Y / scale - Top;
-        _mousePos = new Point(wx, wy);
+        _mousePos = new WpfPoint(wx, wy);
         SnapDotToMouse();
 
         // Fecha se saiu do perímetro do círculo (raio 100 px)
@@ -186,7 +191,7 @@ public partial class QuickPickerWindow : Window
             // Posição do label — radialmente para fora, centrado no ponto de saída
             var lx = Center + Math.Cos(angle) * LabelDist;
             var ly = Center + Math.Sin(angle) * LabelDist;
-            label.Measure(new Size(220, 60));
+            label.Measure(new WpfSize(220, 60));
             var lw = label.DesiredSize.Width;
             var lh = label.DesiredSize.Height;
             Canvas.SetLeft(label, lx - lw / 2);
@@ -199,7 +204,7 @@ public partial class QuickPickerWindow : Window
                 _ = Task.Run(async () =>
                 {
                     await Task.Delay(60);
-                    await Application.Current.Dispatcher.InvokeAsync(() =>
+                    await System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
                         _quickActionService.Execute(captured.Id));
                 });
             };
@@ -223,11 +228,11 @@ public partial class QuickPickerWindow : Window
         var iconText = new TextBlock
         {
             Text                = action.Icon,
-            FontFamily          = new FontFamily("Segoe MDL2 Assets"),
+            FontFamily          = new MediaFontFamily("Segoe MDL2 Assets"),
             FontSize            = 20,
             Foreground          = new SolidColorBrush(IconWhite),
-            HorizontalAlignment = HorizontalAlignment.Center,
-            VerticalAlignment   = VerticalAlignment.Center,
+            HorizontalAlignment = System.Windows.HorizontalAlignment.Center,
+            VerticalAlignment   = System.Windows.VerticalAlignment.Center,
             IsHitTestVisible    = false
         };
 
@@ -241,10 +246,10 @@ public partial class QuickPickerWindow : Window
             CornerRadius           = new CornerRadius(TileSize / 2),
             Background             = bgBrush,
             Child                  = iconText,
-            Cursor                 = Cursors.None,
+            Cursor                 = System.Windows.Input.Cursors.None,
             SnapsToDevicePixels    = true,
             RenderTransform        = scale,
-            RenderTransformOrigin  = new Point(0.5, 0.5)
+            RenderTransformOrigin  = new WpfPoint(0.5, 0.5)
         };
 
         // Label pill — aparece radialmente fora do tile no hover
@@ -324,7 +329,7 @@ public partial class QuickPickerWindow : Window
 
     private void Window_Deactivated(object sender, EventArgs e) => Hide();
 
-    private void Window_KeyDown(object sender, KeyEventArgs e)
+    private void Window_KeyDown(object sender, WpfKeyEventArgs e)
     {
         if (e.Key == Key.Escape) Hide();
     }
