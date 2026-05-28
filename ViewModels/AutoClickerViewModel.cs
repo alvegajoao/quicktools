@@ -78,14 +78,14 @@ public sealed class AutoClickerViewModel : ObservableObject
 
     public ObservableCollection<CursorOption> ActiveCursorOptions { get; } =
     [
-        new() { NameKey = "Cursor_Cross", CursorKey = "Cross", Symbol = "+", IconData = "M12,2 L12,22 M2,12 L22,12" },
-        new() { NameKey = "Cursor_Hand", CursorKey = "Hand", Symbol = "\u261D", IconData = "M9,21 L8,13 C8,12 9,11 10,12 L10,4 C10,3 11,2 12,2 C13,2 14,3 14,4 L14,11 L15,9 C16,8 18,9 18,11 L18,12 L19,11 C20,10 22,11 22,13 L22,17 C22,20 20,22 17,22 L12,22 C11,22 10,22 9,21 Z" },
-        new() { NameKey = "Cursor_Pen", CursorKey = "Pen", Symbol = "\u270E", IconData = "M4,20 L8,19 L19,8 C20,7 20,5 19,4 C18,3 16,3 15,4 L4,15 Z M14,5 L18,9" },
-        new() { NameKey = "Cursor_ScrollAll", CursorKey = "ScrollAll", Symbol = "\u2725", IconData = "M12,2 L15,6 L13,6 L13,11 L18,11 L18,9 L22,12 L18,15 L18,13 L13,13 L13,18 L15,18 L12,22 L9,18 L11,18 L11,13 L6,13 L6,15 L2,12 L6,9 L6,11 L11,11 L11,6 L9,6 Z" },
-        new() { NameKey = "Cursor_SizeAll", CursorKey = "SizeAll", Symbol = "\u2194", IconData = "M3,12 L7,8 L7,11 L17,11 L17,8 L21,12 L17,16 L17,13 L7,13 L7,16 Z" },
-        new() { NameKey = "Cursor_Wait", CursorKey = "Wait", Symbol = "\u25CC", IconData = "M7,3 L17,3 L17,7 C17,9 15,11 13,12 C15,13 17,15 17,17 L17,21 L7,21 L7,17 C7,15 9,13 11,12 C9,11 7,9 7,7 Z M9,5 L15,5 M9,19 L15,19" },
-        new() { NameKey = "Cursor_Help", CursorKey = "Help", Symbol = "?", IconData = "M8,8 C8,5 10,3 13,3 C16,3 18,5 18,8 C18,11 15,12 13,14 L13,16 M13,20 L13,21" },
-        new() { NameKey = "Cursor_Arrow", CursorKey = "Arrow", Symbol = "\u27A4", IconData = "M5,3 L19,13 L13,14 L16,21 L13,22 L10,15 L5,19 Z" }
+        new() { NameKey = "Cursor_Cross", CursorKey = "Cross" },
+        new() { NameKey = "Cursor_Hand", CursorKey = "Hand" },
+        new() { NameKey = "Cursor_Pen", CursorKey = "Pen" },
+        new() { NameKey = "Cursor_ScrollAll", CursorKey = "ScrollAll" },
+        new() { NameKey = "Cursor_SizeAll", CursorKey = "SizeAll" },
+        new() { NameKey = "Cursor_Wait", CursorKey = "Wait" },
+        new() { NameKey = "Cursor_Help", CursorKey = "Help" },
+        new() { NameKey = "Cursor_Arrow", CursorKey = "Arrow" }
     ];
 
     public int IntervalMilliseconds

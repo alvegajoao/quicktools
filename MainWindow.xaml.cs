@@ -289,11 +289,11 @@ public partial class MainWindow : Window
         SetColor("WindowGradientStartColor", useDark ? MediaColor.FromRgb(14, 17, 23) : MediaColor.FromRgb(247, 250, 255));
         SetColor("WindowGradientMidColor", useDark ? MediaColor.FromRgb(19, 24, 32) : MediaColor.FromRgb(239, 244, 251));
         SetColor("WindowGradientEndColor", useDark ? MediaColor.FromRgb(12, 14, 20) : MediaColor.FromRgb(248, 247, 255));
-        SetColor("SidebarBackgroundColor", useDark ? MediaColor.FromRgb(10, 12, 17) : Colors.White);
+        SetColor("SidebarBackgroundColor", useDark ? MediaColor.FromRgb(10, 12, 17) : MediaColor.FromRgb(241, 243, 247));
         SetColor("SurfaceColor", useDark ? MediaColor.FromRgb(22, 27, 34) : Colors.White);
         SetColor("SurfaceAltColor", useDark ? MediaColor.FromRgb(30, 36, 45) : MediaColor.FromRgb(243, 244, 248));
-        SetColor("TextColor", useDark ? MediaColor.FromRgb(232, 237, 243) : MediaColor.FromRgb(31, 35, 40));
-        SetColor("MutedTextColor", useDark ? MediaColor.FromRgb(148, 163, 184) : MediaColor.FromRgb(105, 113, 125));
+        SetColor("TextColor", useDark ? Colors.White : MediaColor.FromRgb(31, 35, 40));
+        SetColor("MutedTextColor", useDark ? MediaColor.FromRgb(203, 213, 225) : MediaColor.FromRgb(105, 113, 125));
         SetColor("BorderColor", useDark ? MediaColor.FromRgb(52, 62, 76) : MediaColor.FromRgb(226, 230, 239));
         SetColor("SelectionColor", useDark ? MediaColor.FromRgb(30, 58, 95) : MediaColor.FromRgb(234, 241, 255));
         SetColor("HoverColor", useDark ? MediaColor.FromRgb(26, 32, 41) : MediaColor.FromRgb(241, 245, 251));
@@ -307,12 +307,24 @@ public partial class MainWindow : Window
         SetBrush("WindowBackgroundBrush", "WindowBackgroundColor");
         SetBrush("SidebarBackgroundBrush", "SidebarBackgroundColor");
         SetBrush("SurfaceBrush", "SurfaceColor");
-        WpfApplication.Current.Resources["GlassBrush"] = useDark
-            ? new SolidColorBrush(MediaColor.FromArgb(214, 23, 28, 36))
-            : new SolidColorBrush(MediaColor.FromArgb(224, 255, 255, 255));
-        WpfApplication.Current.Resources["GlassAltBrush"] = useDark
-            ? new SolidColorBrush(MediaColor.FromArgb(196, 31, 38, 48))
-            : new SolidColorBrush(MediaColor.FromArgb(190, 243, 246, 251));
+        SetBrushResource("GlassBrush", useDark
+            ? CreateGlassBrush(
+                MediaColor.FromArgb(226, 28, 34, 44),
+                MediaColor.FromArgb(202, 18, 23, 31),
+                MediaColor.FromArgb(174, 41, 52, 67))
+            : CreateGlassBrush(
+                MediaColor.FromArgb(244, 255, 255, 255),
+                MediaColor.FromArgb(218, 255, 255, 255),
+                MediaColor.FromArgb(196, 234, 241, 255)));
+        SetBrushResource("GlassAltBrush", useDark
+            ? CreateGlassBrush(
+                MediaColor.FromArgb(210, 35, 43, 55),
+                MediaColor.FromArgb(184, 26, 33, 44),
+                MediaColor.FromArgb(150, 44, 56, 72))
+            : CreateGlassBrush(
+                MediaColor.FromArgb(232, 249, 251, 255),
+                MediaColor.FromArgb(208, 241, 246, 252),
+                MediaColor.FromArgb(188, 226, 235, 248)));
         SetBrush("SurfaceAltBrush", "SurfaceAltColor");
         SetBrush("TextBrush", "TextColor");
         SetBrush("MutedTextBrush", "MutedTextColor");
@@ -343,6 +355,27 @@ public partial class MainWindow : Window
     {
         var color = (MediaColor)WpfApplication.Current.Resources[colorKey];
         var brush = new SolidColorBrush(color);
+        Resources[brushKey] = brush;
+        WpfApplication.Current.Resources[brushKey] = brush;
+    }
+
+    private static LinearGradientBrush CreateGlassBrush(MediaColor start, MediaColor middle, MediaColor end)
+    {
+        return new LinearGradientBrush
+        {
+            StartPoint = new System.Windows.Point(0, 0),
+            EndPoint = new System.Windows.Point(1, 1),
+            GradientStops =
+            {
+                new GradientStop(start, 0),
+                new GradientStop(middle, 0.46),
+                new GradientStop(end, 1)
+            }
+        };
+    }
+
+    private void SetBrushResource(string brushKey, System.Windows.Media.Brush brush)
+    {
         Resources[brushKey] = brush;
         WpfApplication.Current.Resources[brushKey] = brush;
     }
