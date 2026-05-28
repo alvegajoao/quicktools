@@ -6,6 +6,10 @@
              StartupUri="MainWindow.xaml">
     <Application.Resources>
         <Color x:Key="WindowBackgroundColor">#F6F7FB</Color>
+        <Color x:Key="WindowGradientStartColor">#FFF7FAFF</Color>
+        <Color x:Key="WindowGradientMidColor">#FFEFF4FB</Color>
+        <Color x:Key="WindowGradientEndColor">#FFF8F7FF</Color>
+        <Color x:Key="SidebarBackgroundColor">#FFFFFFFF</Color>
         <Color x:Key="SurfaceColor">#FFFFFFFF</Color>
         <Color x:Key="SurfaceAltColor">#FFF3F4F8</Color>
         <Color x:Key="TextColor">#FF1F2328</Color>
@@ -13,8 +17,17 @@
         <Color x:Key="AccentColor">#FF2563EB</Color>
         <Color x:Key="AccentHoverColor">#FF1D4ED8</Color>
         <Color x:Key="BorderColor">#FFE2E6EF</Color>
+        <Color x:Key="SelectionColor">#FFEAF1FF</Color>
+        <Color x:Key="HoverColor">#FFF1F5FB</Color>
+        <Color x:Key="AccentSurfaceColor">#FFEAF1FF</Color>
+        <Color x:Key="WarningBackgroundColor">#FFFFF7ED</Color>
+        <Color x:Key="WarningBorderColor">#FFFED7AA</Color>
+        <Color x:Key="WarningTextColor">#FF9A3412</Color>
+        <Color x:Key="DangerSubtleColor">#20CC3333</Color>
+        <Color x:Key="DangerSoftTextColor">#CCCC3333</Color>
 
         <SolidColorBrush x:Key="WindowBackgroundBrush" Color="{StaticResource WindowBackgroundColor}" />
+        <SolidColorBrush x:Key="SidebarBackgroundBrush" Color="{StaticResource SidebarBackgroundColor}" />
         <SolidColorBrush x:Key="SurfaceBrush" Color="{StaticResource SurfaceColor}" />
         <SolidColorBrush x:Key="GlassBrush" Color="#DFFFFFFF" />
         <SolidColorBrush x:Key="GlassAltBrush" Color="#BFF3F6FB" />
@@ -24,6 +37,14 @@
         <SolidColorBrush x:Key="AccentBrush" Color="{StaticResource AccentColor}" />
         <SolidColorBrush x:Key="AccentHoverBrush" Color="{StaticResource AccentHoverColor}" />
         <SolidColorBrush x:Key="BorderBrushSoft" Color="{StaticResource BorderColor}" />
+        <SolidColorBrush x:Key="SelectionBrush" Color="{StaticResource SelectionColor}" />
+        <SolidColorBrush x:Key="HoverBrush" Color="{StaticResource HoverColor}" />
+        <SolidColorBrush x:Key="AccentSurfaceBrush" Color="{StaticResource AccentSurfaceColor}" />
+        <SolidColorBrush x:Key="WarningBackgroundBrush" Color="{StaticResource WarningBackgroundColor}" />
+        <SolidColorBrush x:Key="WarningBorderBrush" Color="{StaticResource WarningBorderColor}" />
+        <SolidColorBrush x:Key="WarningTextBrush" Color="{StaticResource WarningTextColor}" />
+        <SolidColorBrush x:Key="DangerSubtleBrush" Color="{StaticResource DangerSubtleColor}" />
+        <SolidColorBrush x:Key="DangerSoftTextBrush" Color="{StaticResource DangerSoftTextColor}" />
         <SolidColorBrush x:Key="DangerBrush" Color="#FFDC2626" />
 
         <DropShadowEffect x:Key="CardShadow" BlurRadius="18" ShadowDepth="2" Opacity="0.08" />
@@ -41,6 +62,7 @@
         </Style>
 
         <Style TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource TextBrush}" />
             <Setter Property="TextWrapping" Value="Wrap" />
             <Setter Property="SnapsToDevicePixels" Value="True" />
             <Setter Property="TextOptions.TextFormattingMode" Value="Display" />
@@ -48,19 +70,19 @@
             <Setter Property="TextOptions.TextHintingMode" Value="Fixed" />
         </Style>
 
-        <Style x:Key="PageTitleStyle" TargetType="TextBlock">
+        <Style x:Key="PageTitleStyle" TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}">
             <Setter Property="FontSize" Value="30" />
             <Setter Property="FontWeight" Value="SemiBold" />
             <Setter Property="Margin" Value="0,0,0,4" />
         </Style>
 
-        <Style x:Key="SectionTitleStyle" TargetType="TextBlock">
+        <Style x:Key="SectionTitleStyle" TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}">
             <Setter Property="FontSize" Value="18" />
             <Setter Property="FontWeight" Value="SemiBold" />
             <Setter Property="Margin" Value="0,0,0,14" />
         </Style>
 
-        <Style x:Key="MutedTextStyle" TargetType="TextBlock">
+        <Style x:Key="MutedTextStyle" TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}">
             <Setter Property="Foreground" Value="{DynamicResource MutedTextBrush}" />
             <Setter Property="FontSize" Value="13" />
         </Style>
@@ -133,7 +155,7 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Root" Property="Background" Value="#FFE9EEF7" />
+                                <Setter TargetName="Root" Property="Background" Value="{DynamicResource HoverBrush}" />
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
                                 <Setter TargetName="Root" Property="Opacity" Value="0.55" />
@@ -308,7 +330,7 @@
                         </Grid>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsChecked" Value="True">
-                                <Setter TargetName="Track" Property="Background" Value="#FFEAF1FF" />
+                                <Setter TargetName="Track" Property="Background" Value="{DynamicResource SelectionBrush}" />
                                 <Setter TargetName="Track" Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
                                 <Setter TargetName="Thumb" Property="Fill" Value="{DynamicResource AccentBrush}" />
                                 <Setter TargetName="Thumb" Property="HorizontalAlignment" Value="Right" />
@@ -331,7 +353,7 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsSelected" Value="True">
-                                <Setter TargetName="Root" Property="Background" Value="#FFEAF1FF" />
+                                <Setter TargetName="Root" Property="Background" Value="{DynamicResource SelectionBrush}" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -357,10 +379,10 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsSelected" Value="True">
-                                <Setter TargetName="Root" Property="Background" Value="#FFEAF1FF" />
+                                <Setter TargetName="Root" Property="Background" Value="{DynamicResource SelectionBrush}" />
                             </Trigger>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Root" Property="Background" Value="#FFF1F5FB" />
+                                <Setter TargetName="Root" Property="Background" Value="{DynamicResource HoverBrush}" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
