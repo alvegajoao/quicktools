@@ -124,6 +124,7 @@ public sealed class UpdateService
 
         ZipFile.ExtractToDirectory(zipPath, extractPath, overwriteFiles: true);
         var payloadPath = GetPayloadPath(extractPath);
+        Directory.CreateDirectory(installDirectory);
         var currentProcessId = Environment.ProcessId;
 
         var script = $$"""
@@ -141,7 +142,8 @@ public sealed class UpdateService
                 Stop-Process -Id $processId -Force -ErrorAction SilentlyContinue
             }
 
-            Copy-Item -Path (Join-Path $payload '*') -Destination $target -Recurse -Force
+            New-Item -ItemType Directory -Path $target -Force | Out-Null
+            Get-ChildItem -LiteralPath $payload -Force | Copy-Item -Destination $target -Recurse -Force
             Start-Process -FilePath $exe
         } catch {
             [System.Windows.MessageBox]::Show(
@@ -170,6 +172,15 @@ public sealed class UpdateService
 
     private static string GetPayloadPath(string extractPath)
     {
+        var publishedExe = Directory
+            .EnumerateFiles(extractPath, "QuickTools.exe", SearchOption.AllDirectories)
+            .FirstOrDefault();
+
+        if (!string.IsNullOrWhiteSpace(publishedExe))
+        {
+            return Path.GetDirectoryName(publishedExe) ?? extractPath;
+        }
+
         var rootFiles = Directory.GetFiles(extractPath);
         if (rootFiles.Length > 0)
         {
