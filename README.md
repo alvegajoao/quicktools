@@ -1,9 +1,5 @@
 # QuickTools
 
-[![Build](https://github.com/alvegajoao/quicktools/actions/workflows/build.yml/badge.svg)](https://github.com/alvegajoao/quicktools/actions/workflows/build.yml)
-
-# QuickTools
-
 ![Build](https://github.com/alvegajoao/quicktools/actions/workflows/build.yml/badge.svg)
 
 **QuickTools** é uma aplicação desktop para Windows, desenvolvida em **C# / .NET 8 com WPF**, que reúne várias ferramentas rápidas de produtividade, automação e gestão do sistema numa interface simples, moderna e inspirada no Windows 11.
