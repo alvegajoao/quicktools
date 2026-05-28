@@ -7,6 +7,7 @@ using System.Windows.Media.Animation;
 using System.Windows.Media.Effects;
 using QuickTools.Models;
 using Drawing = System.Drawing;
+using Forms = System.Windows.Forms;
 
 // ── Resolve WPF ↔ WinForms / System.Drawing ambiguities (UseWindowsForms=true) ──
 using WpfApp            = System.Windows.Application;
@@ -39,13 +40,14 @@ public partial class TrayMenuWindow : Window
     public void ShowMenu(IReadOnlyList<TrayMenuEntry> entries, Drawing.Point cursorPhysical)
     {
         BuildItems(entries);
-        PositionWindow(cursorPhysical);
 
         // Reset opacity before animating in
         MenuRoot.Opacity = 0;
         MenuRoot.RenderTransform = new TranslateTransform(0, 10);
 
         Show();
+        UpdateLayout();
+        PositionWindow(cursorPhysical);
 
         // Force foreground so Deactivated fires on outside click
         var helper = new System.Windows.Interop.WindowInteropHelper(this);
@@ -272,11 +274,19 @@ public partial class TrayMenuWindow : Window
         double cx = cursorPhysical.X / scaleX;
         double cy = cursorPhysical.Y / scaleY;
 
-        // Window content size: 292 width + 44px margin each side
-        const double winW = 292 + 44;
-        const double winH = 760; // conservative estimate
+        var content = (UIElement)Content;
+        content.Measure(new System.Windows.Size(double.PositiveInfinity, double.PositiveInfinity));
+        var desired = content.DesiredSize;
 
-        var work = SystemParameters.WorkArea;
+        double winW = ActualWidth  > 0 ? ActualWidth  : desired.Width;
+        double winH = ActualHeight > 0 ? ActualHeight : desired.Height;
+
+        var screenWork = Forms.Screen.FromPoint(cursorPhysical).WorkingArea;
+        var work = new Rect(
+            screenWork.Left / scaleX,
+            screenWork.Top / scaleY,
+            screenWork.Width / scaleX,
+            screenWork.Height / scaleY);
 
         double left = cx - winW / 2.0;
         double top  = cy - winH - 6;   // above cursor (tray at bottom)

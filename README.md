@@ -26,7 +26,7 @@ QuickTools is a lightweight Windows desktop app built with C#/.NET 8 and WPF. It
 
 - Windows
 - .NET 8 SDK for development
-- .NET 8 Desktop Runtime for running published builds
+- Published `QuickTools-win-x64.zip` builds are self-contained and do not require the .NET runtime to be installed
 
 ## Run Locally
 
@@ -54,6 +54,17 @@ The latest Windows build is published automatically on every push to `main`:
 [Download QuickTools latest](https://github.com/alvegajoao/quicktools/releases/tag/latest)
 
 Download `QuickTools-win-x64.zip`, extract it, and run `QuickTools.exe`.
+
+### Windows blocks the app
+
+If Windows shows a warning such as “Windows protected your PC” or blocks the file because it was downloaded from the Internet, that is usually Microsoft Defender SmartScreen/Mark-of-the-Web. It happens with new or unsigned `.exe` files downloaded on another computer.
+
+Recommended fix for public releases: sign `QuickTools.exe` with a code-signing certificate. The GitHub Actions workflow supports this when these repository secrets are configured:
+
+- `QUICKTOOLS_SIGNING_CERT_BASE64`: base64 content of the `.pfx` certificate
+- `QUICKTOOLS_SIGNING_CERT_PASSWORD`: password for the `.pfx` certificate
+
+For private/testing builds, extract the zip first and, if Windows still blocks it, right-click the zip or `QuickTools.exe`, open Properties, choose Unblock, then Apply.
 
 ## Updates
 
@@ -133,7 +144,7 @@ The folder is created automatically.
 
 - Add a tray icon with quick Stop controls
 - Add custom hotkey capture
-- Add packaging for a self-contained Windows release
+- Add installer packaging
 - Add screenshots to the README
 - Add tests for settings and power plan parsing
 
