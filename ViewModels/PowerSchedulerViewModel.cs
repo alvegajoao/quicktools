@@ -11,7 +11,6 @@ public sealed class PowerSchedulerViewModel : ObservableObject
 {
     private readonly PowerService _powerService;
     private string _selectedAction = "Shutdown";
-    private DateTime? _selectedDate = DateTime.Today;
     private string _selectedHour = DateTime.Now.AddHours(1).Hour.ToString("00");
     private string _selectedMinute = "00";
     private string _message = "";
@@ -77,12 +76,6 @@ public sealed class PowerSchedulerViewModel : ObservableObject
         set => SetProperty(ref _selectedAction, value);
     }
 
-    public DateTime? SelectedDate
-    {
-        get => _selectedDate;
-        set => SetProperty(ref _selectedDate, value);
-    }
-
     public string SelectedHour
     {
         get => _selectedHour;
@@ -111,7 +104,7 @@ public sealed class PowerSchedulerViewModel : ObservableObject
         var executeAt = ParseExecuteAt();
         if (executeAt is null)
         {
-            Message = SelectedDate is null ? "Choose a date." : "The selected date/time has already passed.";
+            Message = "Choose a valid time.";
             return;
         }
 
@@ -130,7 +123,7 @@ public sealed class PowerSchedulerViewModel : ObservableObject
         }
 
         _powerService.AddEvent(SelectedAction, executeAt.Value);
-        Message = $"{SelectedAction} scheduled for {executeAt:HH:mm, dd/MM}.";
+        Message = $"{SelectedAction} scheduled for {executeAt.Value:HH:mm} ({GetFriendlyDate(executeAt.Value)}).";
     }
 
     private void RemoveEvent(ScheduledEvent? scheduledEvent)
@@ -204,14 +197,33 @@ public sealed class PowerSchedulerViewModel : ObservableObject
 
     private DateTime? ParseExecuteAt()
     {
-        if (SelectedDate is null ||
-            !int.TryParse(SelectedHour, out var hour) ||
+        if (!int.TryParse(SelectedHour, out var hour) ||
             !int.TryParse(SelectedMinute, out var minute))
         {
             return null;
         }
 
-        var executeAt = SelectedDate.Value.Date.AddHours(hour).AddMinutes(minute);
-        return executeAt > DateTime.Now ? executeAt : null;
+        var executeAt = DateTime.Today.AddHours(hour).AddMinutes(minute);
+        if (executeAt <= DateTime.Now)
+        {
+            executeAt = executeAt.AddDays(1);
+        }
+
+        return executeAt;
+    }
+
+    private static string GetFriendlyDate(DateTime executeAt)
+    {
+        if (executeAt.Date == DateTime.Today)
+        {
+            return "today";
+        }
+
+        if (executeAt.Date == DateTime.Today.AddDays(1))
+        {
+            return "tomorrow";
+        }
+
+        return executeAt.ToString("dd MMM");
     }
 }
