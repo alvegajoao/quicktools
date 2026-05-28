@@ -1,116 +1,197 @@
 <UserControl x:Class="QuickTools.Views.PowerModesView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <UserControl.Resources>
+        <Style x:Key="PowerPlanTileButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+            <Setter Property="VerticalContentAlignment" Value="Stretch" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <ContentPresenter />
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="PlanTileStyle" TargetType="Border">
+            <Setter Property="Background" Value="{DynamicResource GlassBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrushSoft}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="22" />
+            <Setter Property="Padding" Value="18" />
+            <Setter Property="MinHeight" Value="150" />
+            <Setter Property="Margin" Value="0,0,14,14" />
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect BlurRadius="18" ShadowDepth="6" Opacity="0.10" Color="#FF5B6478" />
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsActive}" Value="True">
+                    <Setter Property="Background" Value="#FFEAF1FF" />
+                    <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
+                    <Setter Property="BorderThickness" Value="2" />
+                </DataTrigger>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="{DynamicResource GlassAltBrush}" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="PlanIconBoxStyle" TargetType="Border">
+            <Setter Property="Width" Value="52" />
+            <Setter Property="Height" Value="52" />
+            <Setter Property="CornerRadius" Value="17" />
+            <Setter Property="Background" Value="#FFEAF1FF" />
+            <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+        </Style>
+    </UserControl.Resources>
+
     <StackPanel>
         <TextBlock Text="Power Modes" Style="{StaticResource PageTitleStyle}" />
-        <TextBlock Text="Read and switch Windows power plans with powercfg." Style="{StaticResource MutedTextStyle}" Margin="0,0,0,24" />
+        <TextBlock Text="Switch Windows power plans with clean, visible mode tiles."
+                   Style="{StaticResource MutedTextStyle}"
+                   Margin="0,0,0,24" />
 
-        <Border Style="{StaticResource CardStyle}">
-            <StackPanel>
-                <Grid Margin="0,0,0,18">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="Auto" />
-                    </Grid.ColumnDefinitions>
+        <Border Style="{StaticResource CardStyle}" Margin="0,0,16,18">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <Border Width="58"
+                            Height="58"
+                            CornerRadius="18"
+                            Background="#FFEAF1FF"
+                            BorderBrush="{StaticResource AccentBrush}"
+                            BorderThickness="1"
+                            Margin="0,0,16,0">
+                        <TextBlock Text="&#xE945;"
+                                   FontFamily="Segoe MDL2 Assets"
+                                   Foreground="{StaticResource AccentBrush}"
+                                   FontSize="24"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center" />
+                    </Border>
+
                     <StackPanel>
-                        <TextBlock Text="Current plan" Style="{StaticResource MutedTextStyle}" />
-                        <TextBlock Text="{Binding CurrentPlan}" FontSize="24" FontWeight="SemiBold" />
+                        <TextBlock Text="{Binding CurrentPlan}" FontSize="30" FontWeight="SemiBold" />
+                        <TextBlock Text="Current power mode"
+                                   Style="{StaticResource MutedTextStyle}"
+                                   Margin="0,6,0,0" />
                     </StackPanel>
-                    <Button Grid.Column="1" Content="Refresh" Command="{Binding RefreshCommand}" Style="{StaticResource SecondaryButtonStyle}" />
-                </Grid>
+                </StackPanel>
 
-                <UniformGrid Columns="4" Margin="0,0,0,18">
-                    <Button Content="Balanced" Command="{Binding SetBalancedCommand}" Margin="0,0,10,0">
-                        <Button.Style>
-                            <Style TargetType="Button" BasedOn="{StaticResource SecondaryButtonStyle}">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsBalancedActive}" Value="True">
-                                        <Setter Property="Background" Value="#FFEAF1FF" />
-                                        <Setter Property="Foreground" Value="{StaticResource AccentBrush}" />
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Button.Style>
-                    </Button>
-                    <Button Content="High Performance" Command="{Binding SetHighPerformanceCommand}" Margin="0,0,10,0">
-                        <Button.Style>
-                            <Style TargetType="Button" BasedOn="{StaticResource SecondaryButtonStyle}">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsHighPerformanceActive}" Value="True">
-                                        <Setter Property="Background" Value="#FFEAF1FF" />
-                                        <Setter Property="Foreground" Value="{StaticResource AccentBrush}" />
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Button.Style>
-                    </Button>
-                    <Button Content="Power Saver" Command="{Binding SetPowerSaverCommand}" Margin="0,0,10,0">
-                        <Button.Style>
-                            <Style TargetType="Button" BasedOn="{StaticResource SecondaryButtonStyle}">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsPowerSaverActive}" Value="True">
-                                        <Setter Property="Background" Value="#FFEAF1FF" />
-                                        <Setter Property="Foreground" Value="{StaticResource AccentBrush}" />
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Button.Style>
-                    </Button>
-                    <Button Content="Ultimate" Command="{Binding SetUltimateCommand}">
-                        <Button.Style>
-                            <Style TargetType="Button" BasedOn="{StaticResource SecondaryButtonStyle}">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsUltimateActive}" Value="True">
-                                        <Setter Property="Background" Value="#FFEAF1FF" />
-                                        <Setter Property="Foreground" Value="{StaticResource AccentBrush}" />
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Button.Style>
-                    </Button>
-                </UniformGrid>
+                <Button Grid.Column="1"
+                        Content="Refresh"
+                        Command="{Binding RefreshCommand}"
+                        Style="{StaticResource SecondaryButtonStyle}"
+                        Height="48"
+                        MinWidth="128"
+                        VerticalAlignment="Center" />
+            </Grid>
+        </Border>
 
-                <ListView ItemsSource="{Binding Plans}" BorderThickness="0" Background="Transparent" MinHeight="280">
-                    <ListView.ItemTemplate>
-                        <DataTemplate>
-                            <Border CornerRadius="10" Padding="12" Margin="0,0,0,8">
-                                <Border.Style>
-                                    <Style TargetType="Border">
-                                        <Setter Property="Background" Value="{StaticResource SurfaceAltBrush}" />
-                                        <Setter Property="BorderThickness" Value="1" />
-                                        <Setter Property="BorderBrush" Value="Transparent" />
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding IsActive}" Value="True">
-                                                <Setter Property="Background" Value="#FFEAF1FF" />
-                                                <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}" />
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </Border.Style>
+        <ItemsControl ItemsSource="{Binding Plans}" Margin="0,0,2,8">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <UniformGrid Columns="2" />
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Button Style="{StaticResource PowerPlanTileButtonStyle}"
+                            Command="{Binding DataContext.SetPlanCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                            CommandParameter="{Binding Guid}">
+                        <Border Style="{StaticResource PlanTileStyle}">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="*" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+
                                 <Grid>
                                     <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
                                         <ColumnDefinition Width="*" />
-                                        <ColumnDefinition Width="110" />
                                         <ColumnDefinition Width="Auto" />
                                     </Grid.ColumnDefinitions>
-                                    <StackPanel>
-                                        <TextBlock Text="{Binding Name}" FontWeight="SemiBold" />
-                                        <TextBlock Text="{Binding Guid}" Style="{StaticResource MutedTextStyle}" />
-                                    </StackPanel>
-                                    <TextBlock Grid.Column="1" Text="{Binding Status}" VerticalAlignment="Center" Foreground="{StaticResource AccentBrush}" FontWeight="SemiBold" />
-                                    <Button Grid.Column="2"
-                                            Content="Use"
-                                            Command="{Binding DataContext.SetPlanCommand, RelativeSource={RelativeSource AncestorType=ListView}}"
-                                            CommandParameter="{Binding Guid}"
-                                            Style="{StaticResource SecondaryButtonStyle}" />
-                                </Grid>
-                            </Border>
-                        </DataTemplate>
-                    </ListView.ItemTemplate>
-                </ListView>
 
-                <TextBlock Text="{Binding Message}" Style="{StaticResource MutedTextStyle}" />
-            </StackPanel>
-        </Border>
+                                    <Border Style="{StaticResource PlanIconBoxStyle}">
+                                        <TextBlock Text="{Binding Icon}"
+                                                   FontFamily="Segoe MDL2 Assets"
+                                                   FontSize="22"
+                                                   Foreground="{DynamicResource AccentBrush}"
+                                                   HorizontalAlignment="Center"
+                                                   VerticalAlignment="Center" />
+                                    </Border>
+
+                                    <Border Grid.Column="2"
+                                            Padding="10,5"
+                                            CornerRadius="10"
+                                            VerticalAlignment="Top">
+                                        <Border.Style>
+                                            <Style TargetType="Border">
+                                                <Setter Property="Background" Value="{DynamicResource SurfaceAltBrush}" />
+                                                <Setter Property="Visibility" Value="Collapsed" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsActive}" Value="True">
+                                                        <Setter Property="Visibility" Value="Visible" />
+                                                        <Setter Property="Background" Value="{DynamicResource AccentBrush}" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Border.Style>
+                                        <TextBlock Text="Selected"
+                                                   FontSize="12"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="White" />
+                                    </Border>
+                                </Grid>
+
+                                <StackPanel Grid.Row="1" Margin="0,18,0,18">
+                                    <TextBlock Text="{Binding Name}"
+                                               FontSize="21"
+                                               FontWeight="SemiBold"
+                                               TextWrapping="Wrap" />
+                                    <TextBlock Text="{Binding Description}"
+                                               Style="{StaticResource MutedTextStyle}"
+                                               Margin="0,8,0,0"
+                                               TextWrapping="Wrap" />
+                                </StackPanel>
+
+                                <TextBlock Grid.Row="2"
+                                           Text="{Binding Status}"
+                                           FontSize="13"
+                                           FontWeight="SemiBold">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Foreground" Value="{DynamicResource MutedTextBrush}" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsActive}" Value="True">
+                                                    <Setter Property="Foreground" Value="{DynamicResource AccentBrush}" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </Grid>
+                        </Border>
+                    </Button>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+
+        <TextBlock Text="{Binding Message}" Style="{StaticResource MutedTextStyle}" Margin="0,0,16,0" />
     </StackPanel>
 </UserControl>

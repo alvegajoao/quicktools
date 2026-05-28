@@ -47,6 +47,18 @@ Release build:
 dotnet build QuickTools.sln --configuration Release
 ```
 
+## Download
+
+The latest Windows build is published automatically on every push to `main`:
+
+[Download QuickTools latest](https://github.com/alvegajoao/quicktools/releases/tag/latest)
+
+Download `QuickTools-win-x64.zip`, extract it, and run `QuickTools.exe`.
+
+## Updates
+
+Published builds check the GitHub `latest` release on startup. When a newer build is available, QuickTools asks to install it, downloads the new zip, replaces the local files, and restarts itself.
+
 ## Project Structure
 
 ```text

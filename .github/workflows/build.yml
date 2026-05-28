@@ -1,4 +1,4 @@
-name: Build
+name: Build and Release
 
 on:
   push:
@@ -6,6 +6,9 @@ on:
   pull_request:
     branches: [ main, master ]
   workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   build:
@@ -25,4 +28,34 @@ jobs:
         run: dotnet restore QuickTools.csproj
 
       - name: Build
-        run: dotnet build QuickTools.csproj --configuration Release --no-restore
+        run: dotnet build QuickTools.csproj --configuration Release --no-restore /p:SourceRevisionId=${{ github.sha }}
+
+      - name: Publish win-x64
+        run: dotnet publish QuickTools.csproj --configuration Release --runtime win-x64 --self-contained true --output publish/QuickTools /p:SourceRevisionId=${{ github.sha }}
+
+      - name: Create zip
+        shell: pwsh
+        run: |
+          Compress-Archive -Path publish/QuickTools/* -DestinationPath QuickTools-win-x64.zip -Force
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: QuickTools-win-x64
+          path: QuickTools-win-x64.zip
+
+      - name: Update latest release
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: ncipollo/release-action@v1
+        with:
+          tag: latest
+          name: QuickTools latest
+          body: |
+            Latest QuickTools build from `${{ github.sha }}`.
+
+            Download `QuickTools-win-x64.zip`, extract it, and run `QuickTools.exe`.
+          artifacts: QuickTools-win-x64.zip
+          allowUpdates: true
+          replacesArtifacts: true
+          makeLatest: true
+          commit: ${{ github.sha }}
