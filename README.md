@@ -2,152 +2,307 @@
 
 [![Build](https://github.com/alvegajoao/quicktools/actions/workflows/build.yml/badge.svg)](https://github.com/alvegajoao/quicktools/actions/workflows/build.yml)
 
-QuickTools is a lightweight Windows desktop app built with C#/.NET 8 and WPF. It brings together practical system tools in a clean Windows 11 inspired interface.
+# QuickTools
 
-## Features
+![Build](https://github.com/alvegajoao/quicktools/actions/workflows/build.yml/badge.svg)
 
-- Dashboard with useful status cards and quick actions
-- Auto Clicker with Start/Stop, native `SendInput`, visible running cursor and a global F-key hotkey
-- Quick Toggle radial wheel for system actions such as mute, volume, lock, screenshot and settings
-- Power Scheduler with multiple scheduled events, pause/resume per event and pause-all support
-- Power Modes using Windows `powercfg`
-- Settings for theme, startup, hotkeys and JSON import/export
+**QuickTools** é uma aplicação desktop para Windows, desenvolvida em **C# / .NET 8 com WPF**, que reúne várias ferramentas rápidas de produtividade, automação e gestão do sistema numa interface simples, moderna e inspirada no Windows 11.
 
-## Screens
+A aplicação foi criada para facilitar pequenas tarefas do dia a dia, como automatizar cliques, executar ações rápidas do sistema, agendar ações de energia e alternar entre modos de energia do Windows.
 
-- Dashboard
-- Auto Clicker
-- Quick Toggle
-- Power Scheduler
-- Power Modes
-- Settings
+---
 
-## Requirements
+## ✨ Funcionalidades
 
-- Windows
-- .NET 8 SDK for development
-- Published `QuickTools-win-x64.zip` builds are self-contained and do not require the .NET runtime to be installed
+### 🖱️ Auto Clicker
 
-## Run Locally
+O QuickTools inclui um sistema de **Auto Clicker** para automatizar cliques do rato.
+
+Funcionalidades principais:
+
+* Iniciar e parar o auto clicker manualmente
+* Atalho global para ligar/desligar rapidamente
+* Clique automático com controlo visível
+* Utilização da API nativa do Windows para simular inputs
+* Cursor visível enquanto o auto clicker está ativo
+* Execução em segundo plano com suporte para cancelamento
+
+Por defeito, o atalho global do Auto Clicker é:
+
+```txt
+F6
+```
+
+---
+
+### ⚡ Quick Toggle
+
+O **Quick Toggle** é uma roda de ações rápidas que aparece junto ao cursor do rato, permitindo executar funções úteis do sistema de forma imediata.
+
+Exemplos de ações:
+
+* Silenciar/ativar som
+* Controlar volume
+* Bloquear o PC
+* Tirar screenshot
+* Abrir definições do Windows
+* Executar ações rápidas configuradas
+
+Por defeito, o atalho do Quick Toggle é:
+
+```txt
+F7
+```
+
+A roda pode suportar até 8 ações fixadas.
+
+---
+
+### ⏱️ Power Scheduler
+
+O **Power Scheduler** permite agendar ações de energia no Windows.
+
+Ações suportadas:
+
+* Desligar
+* Reiniciar
+* Suspender
+* Hibernar
+
+Funcionalidades:
+
+* Agendamento por data e hora
+* Suporte para múltiplos eventos
+* Pausar ou retomar eventos individualmente
+* Remover eventos agendados
+* Confirmação antes de ações críticas como desligar ou reiniciar
+
+Esta funcionalidade é útil para desligar o PC automaticamente após downloads, renderizações, tarefas longas ou períodos de inatividade.
+
+---
+
+### 🔋 Power Modes
+
+O QuickTools permite visualizar e alterar os planos de energia do Windows através do `powercfg`.
+
+Funcionalidades:
+
+* Listar planos de energia disponíveis
+* Ver qual o plano atualmente ativo
+* Alternar rapidamente entre modos de energia
+* Suporte para planos como Equilibrado, Alto Desempenho e outros planos disponíveis no sistema
+* Deteção de planos indisponíveis, como Ultimate Performance, quando o Windows não os expõe
+
+---
+
+### ⚙️ Settings
+
+A área de definições permite configurar o comportamento da aplicação.
+
+Inclui opções como:
+
+* Tema visual
+* Arranque com o Windows
+* Configuração de atalhos
+* Importação/exportação de definições em JSON
+* Preferências locais da aplicação
+
+As definições são guardadas localmente em:
+
+```txt
+%AppData%\QuickTools\settings.json
+```
+
+---
+
+## 🖥️ Interface
+
+A aplicação tem uma interface simples e moderna, com foco em rapidez e facilidade de utilização.
+
+Secções principais:
+
+* Dashboard
+* Auto Clicker
+* Quick Toggle
+* Power Scheduler
+* Power Modes
+* Settings
+
+---
+
+## 📦 Download
+
+A versão mais recente da aplicação é gerada automaticamente através do GitHub Actions.
+
+Podes fazer download aqui:
+
+```txt
+https://github.com/alvegajoao/quicktools/releases/tag/latest
+```
+
+Depois:
+
+1. Faz download do ficheiro `QuickTools-win-x64.zip`
+2. Extrai o ZIP
+3. Executa `QuickTools.exe`
+
+---
+
+## 🚀 Build automática
+
+Sempre que é feito push para a branch `main`, o GitHub Actions compila automaticamente a aplicação.
+
+O processo faz:
+
+1. Checkout do código
+2. Instalação/configuração do .NET
+3. Restore das dependências
+4. Build da solução
+5. Publish da aplicação para Windows x64
+6. Criação do ficheiro ZIP
+7. Publicação como artifact/release
+
+---
+
+## 🛠️ Executar localmente
+
+### Requisitos
+
+Para desenvolvimento:
+
+* Windows
+* .NET 8 SDK
+* Visual Studio ou outro editor compatível com projetos WPF
+
+### Restaurar dependências
 
 ```powershell
 dotnet restore
+```
+
+### Executar a aplicação
+
+```powershell
 dotnet run
 ```
 
-Build:
+### Compilar
 
 ```powershell
 dotnet build QuickTools.sln
 ```
 
-Release build:
+### Compilar em Release
 
 ```powershell
 dotnet build QuickTools.sln --configuration Release
 ```
 
-## Download
+---
 
-The latest Windows build is published automatically on every push to `main`:
+## 📁 Estrutura do projeto
 
-[Download QuickTools latest](https://github.com/alvegajoao/quicktools/releases/tag/latest)
-
-Download `QuickTools-win-x64.zip`, extract it, and run `QuickTools.exe`.
-
-### Windows blocks the app
-
-If Windows shows a warning such as “Windows protected your PC” or blocks the file because it was downloaded from the Internet, that is usually Microsoft Defender SmartScreen/Mark-of-the-Web. It happens with new or unsigned `.exe` files downloaded on another computer.
-
-Recommended fix for public releases: sign `QuickTools.exe` with a code-signing certificate. The GitHub Actions workflow supports this when these repository secrets are configured:
-
-- `QUICKTOOLS_SIGNING_CERT_BASE64`: base64 content of the `.pfx` certificate
-- `QUICKTOOLS_SIGNING_CERT_PASSWORD`: password for the `.pfx` certificate
-
-For private/testing builds, extract the zip first and, if Windows still blocks it, right-click the zip or `QuickTools.exe`, open Properties, choose Unblock, then Apply.
-
-## Updates
-
-Published builds check the GitHub `latest` release on startup. When a newer build is available, QuickTools asks to install it, downloads the new zip, replaces the local files, and restarts itself.
-
-## Project Structure
-
-```text
+```txt
 QuickTools/
-|-- .github/workflows/
-|-- Models/
-|-- Services/
-|-- ViewModels/
-|-- Views/
-|-- Helpers/
-|-- Converters/
-|-- scripts/
-|-- App.xaml
-|-- MainWindow.xaml
-|-- QuickPickerWindow.xaml
-|-- QuickTools.csproj
-`-- QuickTools.sln
+├── .github/workflows/
+├── Converters/
+├── Helpers/
+├── Models/
+├── Services/
+├── ViewModels/
+├── Views/
+├── scripts/
+├── App.xaml
+├── App.xaml.cs
+├── MainWindow.xaml
+├── MainWindow.xaml.cs
+├── QuickPickerWindow.xaml
+├── QuickPickerWindow.xaml.cs
+├── QuickTools.csproj
+└── QuickTools.sln
 ```
 
-## Data Files
+---
 
-QuickTools stores local settings in:
+## 🔐 Segurança e permissões
 
-```text
-%AppData%\QuickTools\settings.json
+Algumas funcionalidades podem depender das permissões do Windows.
+
+Notas importantes:
+
+* Apps executadas como administrador podem não aceitar inputs simulados por uma app não elevada
+* Algumas ações do sistema podem exigir permissões adicionais
+* Suspender e hibernar dependem das capacidades e políticas de energia do Windows
+* Alterações em Wi-Fi ou configurações de sistema podem exigir aprovação do utilizador
+* A opção “Start with Windows” utiliza a chave de arranque do utilizador atual no Registo do Windows
+
+---
+
+## ⚠️ Aviso do Windows SmartScreen
+
+Como a aplicação ainda não está assinada digitalmente, o Windows pode mostrar um aviso ao abrir o `.exe`, especialmente se tiver sido descarregado da Internet.
+
+Se aparecer a mensagem:
+
+```txt
+Windows protected your PC
 ```
 
-The folder is created automatically.
+podes escolher:
 
-## Implementation Notes
+```txt
+More info → Run anyway
+```
 
-### Auto Clicker
+Para uma versão pública mais profissional, o ideal será assinar o executável com um certificado de code signing.
 
-- Uses native Windows `SendInput`
-- Runs on a background task with cancellation support
-- Defaults to `F6` as the global Start/Stop hotkey
-- Always exposes visible Start and Stop controls
-- Applies a visible Windows cursor while running and restores it when stopped
+---
 
-### Quick Toggle
+## 🔄 Atualizações
 
-- Defaults to `F7`, configurable in Settings
-- Opens a compact radial wheel at the mouse position
-- Supports up to 8 pinned actions
-- Uses native Windows commands or shell actions where possible
-- Some actions, such as Wi-Fi changes, can require Windows elevation
+As builds publicadas podem verificar a release `latest` no GitHub para identificar versões mais recentes da aplicação.
 
-### Power Scheduler
+Quando existir uma nova versão, a aplicação pode descarregar o novo ficheiro, substituir os ficheiros locais e reiniciar.
 
-- Supports Shutdown, Restart, Suspend and Hibernate
-- Uses a DatePicker plus hour/minute selectors for easier scheduling
-- Supports multiple scheduled events
-- Each event can be paused, resumed or removed individually
-- Shutdown and Restart ask for confirmation before scheduling
+---
 
-### Power Modes
+## 🧭 Roadmap
 
-- Reads plans with `powercfg /L`
-- Changes plans with `powercfg /S GUID`
-- Shows all detected plans and highlights the active one
-- Ultimate Performance is shown as unavailable when Windows does not expose it
+Possíveis melhorias futuras:
 
-## Limitations
+* Ícone na system tray
+* Controlo rápido para parar o Auto Clicker
+* Captura personalizada de atalhos
+* Instalador oficial
+* Screenshots no README
+* Mais ações no Quick Toggle
+* Mais opções de automação
+* Testes automáticos para serviços principais
 
-- Some elevated/admin apps may not accept input from a non-elevated QuickTools process.
-- Some power plan names can be localized by Windows, so direct plan selection is available in addition to quick buttons.
-- Start with Windows writes to the current user's Run registry key.
-- Suspend and hibernate depend on system power capabilities and policy.
-- Wi-Fi toggling can require administrator approval depending on the adapter and Windows policy.
+---
 
-## Roadmap
+## 🧑‍💻 Tecnologias usadas
 
-- Add a tray icon with quick Stop controls
-- Add custom hotkey capture
-- Add installer packaging
-- Add screenshots to the README
-- Add tests for settings and power plan parsing
+* C#
+* .NET 8
+* WPF
+* Windows API
+* GitHub Actions
+* PowerShell
+* `powercfg`
 
-## Safety
+---
 
-QuickTools is designed to be transparent. It does not run hidden automation without visible controls, and actions that affect system power state require user confirmation.
+## 📌 Objetivo
+
+O objetivo do QuickTools é juntar várias ferramentas pequenas, mas úteis, numa só aplicação leve para Windows.
+
+Em vez de ter várias apps separadas para automatizar cliques, gerir energia, abrir ações rápidas ou mudar planos de energia, o QuickTools centraliza tudo numa interface simples e prática.
+
+---
+
+## 📄 Licença
+
+Este projeto é pessoal/experimental.
+Define uma licença antes de distribuir publicamente, por exemplo MIT, GPL ou proprietária.
+
