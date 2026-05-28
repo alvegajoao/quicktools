@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using System.Windows.Input;
+using System.Windows.Threading;
 using QuickTools.Helpers;
 using QuickTools.Models;
 using QuickTools.Services;
@@ -17,6 +18,8 @@ public sealed class DashboardViewModel : ObservableObject
     private readonly PowerService _powerService;
     private readonly AutoClickerViewModel _autoClickerViewModel;
     private readonly QuickToggleViewModel _quickToggleViewModel;
+    private readonly SystemMetricsService _systemMetricsService = new();
+    private readonly DispatcherTimer _metricsTimer;
     private bool _powerPlanReadFailed;
 
     private string _currentPowerPlan = "";
@@ -24,6 +27,7 @@ public sealed class DashboardViewModel : ObservableObject
     private string _nextScheduledAction = "";
     private string _schedulerStatus = "";
     private string _schedulerSummary = "";
+    private SystemMetricsSnapshot _systemMetrics = SystemMetricsSnapshot.Empty;
     private bool _isQuickToggleActive;
 
     public DashboardViewModel(
@@ -44,6 +48,14 @@ public sealed class DashboardViewModel : ObservableObject
         SetHighPerformanceCommand = new AsyncRelayCommand(async () => await SetPlanAsync("HighPerformance"));
         SetPowerSaverCommand = new AsyncRelayCommand(async () => await SetPlanAsync("PowerSaver"));
         SetUltimateCommand = new AsyncRelayCommand(async () => await SetPlanAsync("UltimatePerformance"));
+
+        _metricsTimer = new DispatcherTimer
+        {
+            Interval = TimeSpan.FromSeconds(2)
+        };
+        _metricsTimer.Tick += async (_, _) => await RefreshSystemMetricsAsync();
+        _metricsTimer.Start();
+        _ = RefreshSystemMetricsAsync();
 
         _autoClickerService.StateChanged += (_, _) =>
         {
@@ -155,6 +167,38 @@ public sealed class DashboardViewModel : ObservableObject
         .OrderBy(item => item.ExecuteAt)
         .Take(3);
 
+    public SystemMetricsSnapshot SystemMetrics
+    {
+        get => _systemMetrics;
+        private set
+        {
+            if (SetProperty(ref _systemMetrics, value))
+            {
+                OnPropertyChanged(nameof(CpuUsageLabel));
+                OnPropertyChanged(nameof(CpuTemperatureLabel));
+                OnPropertyChanged(nameof(CpuTemperatureDisplayLabel));
+                OnPropertyChanged(nameof(GpuUsageLabel));
+                OnPropertyChanged(nameof(GpuTemperatureLabel));
+                OnPropertyChanged(nameof(GpuTemperatureDisplayLabel));
+                OnPropertyChanged(nameof(RamUsageLabel));
+                OnPropertyChanged(nameof(DiskUsageLabel));
+                OnPropertyChanged(nameof(NetworkDownloadLabel));
+                OnPropertyChanged(nameof(NetworkUploadLabel));
+            }
+        }
+    }
+
+    public string CpuUsageLabel => $"{SystemMetrics.CpuUsagePercent}%";
+    public string CpuTemperatureLabel => FormatTemperature(SystemMetrics.CpuTemperatureCelsius);
+    public string CpuTemperatureDisplayLabel => LocalizationService.Instance.Format("Dashboard_Temperature", CpuTemperatureLabel);
+    public string GpuUsageLabel => SystemMetrics.GpuUsagePercent is int usage ? $"{usage}%" : "N/A";
+    public string GpuTemperatureLabel => FormatTemperature(SystemMetrics.GpuTemperatureCelsius);
+    public string GpuTemperatureDisplayLabel => LocalizationService.Instance.Format("Dashboard_Temperature", GpuTemperatureLabel);
+    public string RamUsageLabel => $"{SystemMetrics.RamUsagePercent}%";
+    public string DiskUsageLabel => $"{SystemMetrics.DiskUsagePercent}%";
+    public string NetworkDownloadLabel => FormatBytesPerSecond(SystemMetrics.NetworkDownloadBytesPerSecond);
+    public string NetworkUploadLabel => FormatBytesPerSecond(SystemMetrics.NetworkUploadBytesPerSecond);
+
     public ICommand StartAutoClickerCommand { get; }
     public ICommand StopAutoClickerCommand { get; }
     public ICommand PauseAllEventsCommand { get; }
@@ -253,5 +297,39 @@ public sealed class DashboardViewModel : ObservableObject
     private bool IsCurrentPlan(string guid)
     {
         return CurrentPowerPlanGuid.Equals(guid, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private async Task RefreshSystemMetricsAsync()
+    {
+        try
+        {
+            SystemMetrics = await _systemMetricsService.GetSnapshotAsync();
+        }
+        catch
+        {
+            SystemMetrics = SystemMetricsSnapshot.Empty;
+        }
+    }
+
+    private static string FormatTemperature(double? temperature)
+    {
+        return temperature is double value
+            ? $"{Math.Round(value)}°C"
+            : "N/A";
+    }
+
+    private static string FormatBytesPerSecond(double bytesPerSecond)
+    {
+        string[] units = ["B/s", "KB/s", "MB/s", "GB/s"];
+        var value = Math.Max(0, bytesPerSecond);
+        var unit = 0;
+
+        while (value >= 1024 && unit < units.Length - 1)
+        {
+            value /= 1024;
+            unit++;
+        }
+
+        return $"{value:0.#} {units[unit]}";
     }
 }

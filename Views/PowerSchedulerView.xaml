@@ -70,7 +70,7 @@
                     <Border Width="58"
                             Height="58"
                             CornerRadius="18"
-                            Background="#FFEAF1FF"
+                            Background="{DynamicResource AccentSurfaceBrush}"
                             BorderBrush="{StaticResource AccentBrush}"
                             BorderThickness="1"
                             Margin="0,0,16,0">
@@ -136,13 +136,13 @@
                             HorizontalAlignment="Stretch"
                             Height="42" />
 
-                    <Border Background="#FFFFF7ED"
-                            BorderBrush="#FFFED7AA"
+                    <Border Background="{DynamicResource WarningBackgroundBrush}"
+                            BorderBrush="{DynamicResource WarningBorderBrush}"
                             BorderThickness="1"
                             CornerRadius="10"
                             Padding="12,8"
                             Margin="0,14,0,0">
-                        <TextBlock Foreground="#FF9A3412"
+                        <TextBlock Foreground="{DynamicResource WarningTextBrush}"
                                    FontSize="12"
                                    Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[PowerScheduler_ConfirmationNotice]}" />
                     </Border>
@@ -194,7 +194,7 @@
                                                 Width="44"
                                                 Height="44"
                                                 CornerRadius="14"
-                                                Background="#FFEAF1FF"
+                                                Background="{DynamicResource AccentSurfaceBrush}"
                                                 BorderBrush="{StaticResource AccentBrush}"
                                                 BorderThickness="1"
                                                 Margin="0,0,12,0">
@@ -256,7 +256,7 @@
                                                                 </Border>
                                                                 <ControlTemplate.Triggers>
                                                                     <Trigger Property="IsMouseOver" Value="True">
-                                                                        <Setter TargetName="Root" Property="Background" Value="#20CC3333" />
+                                                                        <Setter TargetName="Root" Property="Background" Value="{DynamicResource DangerSubtleBrush}" />
                                                                     </Trigger>
                                                                 </ControlTemplate.Triggers>
                                                             </ControlTemplate>
@@ -267,7 +267,7 @@
                                             <TextBlock Text="&#xE74D;"
                                                        FontFamily="Segoe MDL2 Assets"
                                                        FontSize="13"
-                                                       Foreground="#CCCC3333" />
+                                                        Foreground="{DynamicResource DangerSoftTextBrush}" />
                                         </Button>
                                     </Grid>
                                 </Border>

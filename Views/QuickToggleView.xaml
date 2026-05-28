@@ -33,7 +33,7 @@
                     <Border Width="58"
                             Height="58"
                             CornerRadius="18"
-                            Background="#FFEAF1FF"
+                            Background="{DynamicResource AccentSurfaceBrush}"
                             BorderBrush="{StaticResource AccentBrush}"
                             BorderThickness="1"
                             Margin="0,0,16,0">
@@ -100,7 +100,7 @@
                                             Width="44"
                                             Height="44"
                                             CornerRadius="14"
-                                            Background="#FFEAF1FF"
+                                            Background="{DynamicResource AccentSurfaceBrush}"
                                             BorderBrush="{StaticResource AccentBrush}"
                                             BorderThickness="1"
                                             Margin="0,0,14,0">

@@ -27,7 +27,7 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsSelected" Value="True">
-                                <Setter TargetName="Root" Property="Background" Value="#FFEAF1FF" />
+                                <Setter TargetName="Root" Property="Background" Value="{DynamicResource SelectionBrush}" />
                                 <Setter TargetName="Root" Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
                             </Trigger>
                             <Trigger Property="IsMouseOver" Value="True">
@@ -61,7 +61,7 @@
                     <Border Width="58"
                             Height="58"
                             CornerRadius="18"
-                            Background="#FFEAF1FF"
+                            Background="{DynamicResource AccentSurfaceBrush}"
                             BorderBrush="{StaticResource AccentBrush}"
                             BorderThickness="1"
                             Margin="0,0,16,0">
@@ -108,7 +108,7 @@
                                 <TextBlock Text="{Binding IntervalLabel}" Style="{StaticResource MutedTextStyle}" />
                             </StackPanel>
                             <Border Grid.Column="1"
-                                    Background="#FFEAF1FF"
+                                    Background="{DynamicResource AccentSurfaceBrush}"
                                     BorderBrush="{StaticResource AccentBrush}"
                                     BorderThickness="1"
                                     CornerRadius="14"
@@ -187,7 +187,7 @@
                                         <Setter Property="Padding" Value="12" />
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding IsLeftClickSelected}" Value="True">
-                                                <Setter Property="Background" Value="#FFEAF1FF" />
+                                                <Setter Property="Background" Value="{DynamicResource SelectionBrush}" />
                                                 <Setter Property="Foreground" Value="{StaticResource AccentBrush}" />
                                             </DataTrigger>
                                         </Style.Triggers>
@@ -214,7 +214,7 @@
                                         <Setter Property="Padding" Value="8" />
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding IsMiddleClickSelected}" Value="True">
-                                                <Setter Property="Background" Value="#FFEAF1FF" />
+                                                <Setter Property="Background" Value="{DynamicResource SelectionBrush}" />
                                                 <Setter Property="Foreground" Value="{StaticResource AccentBrush}" />
                                             </DataTrigger>
                                         </Style.Triggers>
@@ -241,7 +241,7 @@
                                         <Setter Property="Padding" Value="12" />
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding IsRightClickSelected}" Value="True">
-                                                <Setter Property="Background" Value="#FFEAF1FF" />
+                                                <Setter Property="Background" Value="{DynamicResource SelectionBrush}" />
                                                 <Setter Property="Foreground" Value="{StaticResource AccentBrush}" />
                                             </DataTrigger>
                                         </Style.Triggers>

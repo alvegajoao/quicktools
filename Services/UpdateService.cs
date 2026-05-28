@@ -47,25 +47,25 @@ public sealed class UpdateService
             return;
         }
 
-        var shouldInstall = UpdateDialog.ShowConfirmation(
+        var shouldOpenGitHub = UpdateDialog.ShowConfirmation(
             owner,
             "QuickTools update",
-            "A new QuickTools update is available. Install it now?",
-            "Install update",
+            "A new QuickTools update is available. Please download it from GitHub.",
+            "Open GitHub",
             "Later");
 
-        if (!shouldInstall)
+        if (!shouldOpenGitHub)
         {
             return;
         }
 
         try
         {
-            await DownloadAndInstallAsync(asset.BrowserDownloadUrl);
+            OpenReleasePage(release.HtmlUrl, asset.BrowserDownloadUrl);
         }
         catch (Exception ex)
         {
-            UpdateDialog.ShowError(owner, "QuickTools update", $"QuickTools could not install the update.\n\n{ex.Message}");
+            UpdateDialog.ShowError(owner, "QuickTools update", $"QuickTools could not open the GitHub release page.\n\n{ex.Message}");
         }
     }
 
@@ -74,6 +74,23 @@ public sealed class UpdateService
         var processPath = Environment.ProcessPath;
         return !string.IsNullOrWhiteSpace(processPath)
             && Path.GetFileName(processPath).Equals("QuickTools.exe", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static void OpenReleasePage(string? releaseUrl, string? fallbackUrl)
+    {
+        var url = !string.IsNullOrWhiteSpace(releaseUrl)
+            ? releaseUrl
+            : fallbackUrl;
+
+        if (string.IsNullOrWhiteSpace(url))
+        {
+            throw new InvalidOperationException("Could not determine the GitHub release page.");
+        }
+
+        Process.Start(new ProcessStartInfo(url)
+        {
+            UseShellExecute = true
+        });
     }
 
     private static string GetCurrentCommit()
@@ -200,6 +217,9 @@ public sealed class UpdateService
 
     private sealed class GitHubRelease
     {
+        [JsonPropertyName("html_url")]
+        public string HtmlUrl { get; set; } = "";
+
         [JsonPropertyName("target_commitish")]
         public string TargetCommitish { get; set; } = "";
 

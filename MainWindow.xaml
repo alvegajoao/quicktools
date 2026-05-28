@@ -18,9 +18,9 @@
     <Grid>
         <Grid.Background>
             <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                <GradientStop Color="#FFF7FAFF" Offset="0" />
-                <GradientStop Color="#FFEFF4FB" Offset="0.45" />
-                <GradientStop Color="#FFF8F7FF" Offset="1" />
+                    <GradientStop Color="{DynamicResource WindowGradientStartColor}" Offset="0" />
+                    <GradientStop Color="{DynamicResource WindowGradientMidColor}" Offset="0.45" />
+                    <GradientStop Color="{DynamicResource WindowGradientEndColor}" Offset="1" />
             </LinearGradientBrush>
         </Grid.Background>
         <Grid.ColumnDefinitions>
@@ -29,7 +29,7 @@
         </Grid.ColumnDefinitions>
 
         <Border Grid.Column="0"
-                Background="{StaticResource SurfaceBrush}"
+                Background="{DynamicResource SidebarBackgroundBrush}"
                 BorderBrush="{StaticResource BorderBrushSoft}"
                 BorderThickness="0,0,1,0"
                 Padding="24">

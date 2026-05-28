@@ -34,7 +34,7 @@
             </Setter>
             <Style.Triggers>
                 <DataTrigger Binding="{Binding IsActive}" Value="True">
-                    <Setter Property="Background" Value="#FFEAF1FF" />
+                    <Setter Property="Background" Value="{DynamicResource SelectionBrush}" />
                     <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
                     <Setter Property="BorderThickness" Value="2" />
                 </DataTrigger>
@@ -48,7 +48,7 @@
             <Setter Property="Width" Value="52" />
             <Setter Property="Height" Value="52" />
             <Setter Property="CornerRadius" Value="17" />
-            <Setter Property="Background" Value="#FFEAF1FF" />
+            <Setter Property="Background" Value="{DynamicResource AccentSurfaceBrush}" />
             <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
             <Setter Property="BorderThickness" Value="1" />
         </Style>
@@ -78,7 +78,7 @@
                     <Border Width="58"
                             Height="58"
                             CornerRadius="18"
-                            Background="#FFEAF1FF"
+                            Background="{DynamicResource AccentSurfaceBrush}"
                             BorderBrush="{StaticResource AccentBrush}"
                             BorderThickness="1"
                             Margin="0,0,16,0">
