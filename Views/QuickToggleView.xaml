@@ -16,12 +16,18 @@
         </Style>
     </UserControl.Resources>
 
-    <StackPanel>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
         <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[QuickToggle_Title]}" Style="{StaticResource PageTitleStyle}" />
-        <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[QuickToggle_Subtitle]}"
+        <TextBlock Grid.Row="1" Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[QuickToggle_Subtitle]}"
                    Style="{StaticResource MutedTextStyle}"
                    Margin="0,0,0,24" />
-
+        <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="0,0,4,0">
+        <StackPanel>
         <Border Style="{StaticResource CardStyle}" Margin="0,0,16,18">
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -176,5 +182,7 @@
                 </ItemsControl>
             </StackPanel>
         </Border>
-    </StackPanel>
+        </StackPanel>
+        </ScrollViewer>
+    </Grid>
 </UserControl>

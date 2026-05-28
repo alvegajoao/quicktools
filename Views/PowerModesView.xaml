@@ -58,16 +58,16 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
-            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[PowerModes_Title]}" Style="{StaticResource PageTitleStyle}" />
         <TextBlock Grid.Row="1" Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[PowerModes_Subtitle]}"
                    Style="{StaticResource MutedTextStyle}"
                    Margin="0,0,0,24" />
 
-        <Border Grid.Row="2" Style="{StaticResource CardStyle}" Margin="0,0,16,18">
+        <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="0,0,4,0">
+        <StackPanel>
+        <Border Style="{StaticResource CardStyle}" Margin="0,0,16,18">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
@@ -108,7 +108,7 @@
             </Grid>
         </Border>
 
-        <ItemsControl Grid.Row="3" ItemsSource="{Binding Plans}" Margin="0,0,2,8">
+        <ItemsControl ItemsSource="{Binding Plans}" Margin="0,0,2,8">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
                     <UniformGrid Columns="2" />
@@ -200,6 +200,8 @@
             </ItemsControl.ItemTemplate>
         </ItemsControl>
 
-        <TextBlock Grid.Row="4" Text="{Binding Message}" Style="{StaticResource MutedTextStyle}" Margin="0,0,16,0" />
+        <TextBlock Text="{Binding Message}" Style="{StaticResource MutedTextStyle}" Margin="0,0,16,8" />
+        </StackPanel>
+        </ScrollViewer>
     </Grid>
 </UserControl>

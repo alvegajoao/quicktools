@@ -16,4 +16,5 @@ public sealed class AppSettings
     public List<ScheduledPowerEventSetting> ScheduledPowerEvents { get; set; } = [];
     public string DataFolder { get; set; } = "";
     public bool StartWithWindows { get; set; }
+    public List<string> DashboardCardOrder { get; set; } = [];
 }

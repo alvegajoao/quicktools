@@ -44,6 +44,16 @@ public sealed class MainViewModel : ObservableObject
         {
             IsQuickToggleActive = QuickToggle.IsEnabled
         };
+
+        if (Settings.DashboardCardOrder.Count > 0)
+            Dashboard.LoadCardOrder(Settings.DashboardCardOrder);
+
+        Dashboard.CardOrder.CollectionChanged += (_, _) =>
+        {
+            Settings.DashboardCardOrder = [.. Dashboard.GetCardOrder()];
+            SettingsService.Save(Settings);
+        };
+
         QuickToggle.PropertyChanged += OnQuickTogglePropertyChanged;
 
         PowerScheduler = new PowerSchedulerViewModel(PowerService);

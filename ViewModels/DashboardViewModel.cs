@@ -1,3 +1,5 @@
+using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Windows.Input;
 using System.Windows.Threading;
@@ -198,6 +200,27 @@ public sealed class DashboardViewModel : ObservableObject
     public string DiskUsageLabel => $"{SystemMetrics.DiskUsagePercent}%";
     public string NetworkDownloadLabel => FormatBytesPerSecond(SystemMetrics.NetworkDownloadBytesPerSecond);
     public string NetworkUploadLabel => FormatBytesPerSecond(SystemMetrics.NetworkUploadBytesPerSecond);
+
+    public ObservableCollection<string> CardOrder { get; } = new(DashboardCard.DefaultOrder);
+
+    public void LoadCardOrder(IEnumerable<string> saved)
+    {
+        var valid = saved.Where(id => DashboardCard.DefaultOrder.Contains(id)).ToList();
+        var missing = DashboardCard.DefaultOrder.Except(valid).ToList();
+        CardOrder.Clear();
+        foreach (var id in valid.Concat(missing))
+            CardOrder.Add(id);
+    }
+
+    public IReadOnlyList<string> GetCardOrder() => [.. CardOrder];
+
+    public void MoveCard(int fromIndex, int toIndex)
+    {
+        if (fromIndex == toIndex) return;
+        if ((uint)fromIndex >= (uint)CardOrder.Count) return;
+        if ((uint)toIndex >= (uint)CardOrder.Count) return;
+        CardOrder.Move(fromIndex, toIndex);
+    }
 
     public ICommand StartAutoClickerCommand { get; }
     public ICommand StopAutoClickerCommand { get; }

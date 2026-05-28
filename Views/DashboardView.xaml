@@ -8,7 +8,7 @@
 
         <Style x:Key="DashboardTileStyle" TargetType="Border" BasedOn="{StaticResource CardStyle}">
             <Setter Property="MinHeight" Value="176" />
-            <Setter Property="Padding" Value="18" />
+            <Setter Property="Padding" Value="0" />
             <Setter Property="Margin" Value="0,0,14,14" />
         </Style>
 
@@ -71,6 +71,14 @@
             <Setter Property="Margin" Value="0,0,0,7" />
             <Setter Property="HorizontalAlignment" Value="Stretch" />
         </Style>
+
+        <!-- Drag handle strip shown at top of every card -->
+        <Style x:Key="DragHandleStyle" TargetType="Border">
+            <Setter Property="Height" Value="22" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Cursor" Value="SizeAll" />
+            <Setter Property="VerticalAlignment" Value="Top" />
+        </Style>
     </UserControl.Resources>
 
     <Grid>
@@ -84,7 +92,12 @@
                    Style="{StaticResource MutedTextStyle}"
                    Margin="0,0,0,24" />
 
-        <Grid Grid.Row="2">
+        <ScrollViewer Grid.Row="2"
+                      VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled"
+                      Padding="0,0,4,0">
+        <!-- Cards grid — repositioned at runtime by DashboardView.xaml.cs -->
+        <Grid x:Name="CardsGrid">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="14" />
@@ -96,14 +109,28 @@
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
-            <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource DashboardTileStyle}">
+            <!-- Card 0: Auto Clicker -->
+            <Border x:Name="CardAutoClicker" Tag="auto_clicker"
+                    Grid.Row="0" Grid.Column="0"
+                    Style="{StaticResource DashboardTileStyle}">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
 
-                    <Grid>
+                    <!-- Drag handle -->
+                    <Border x:Name="HandleAutoClicker" Style="{StaticResource DragHandleStyle}" Grid.RowSpan="2" Panel.ZIndex="10">
+                        <TextBlock Text="&#xE76F;"
+                                   FontFamily="Segoe MDL2 Assets"
+                                   FontSize="10"
+                                   Foreground="{DynamicResource MutedTextBrush}"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"
+                                   Opacity="0.5" />
+                    </Border>
+
+                    <Grid Margin="18,26,18,0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="*" />
@@ -138,7 +165,7 @@
                         </Border>
                     </Grid>
 
-                    <Grid Grid.Row="1" Margin="0,14,0,0">
+                    <Grid Grid.Row="1" Margin="18,14,18,18">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="*" />
@@ -171,14 +198,28 @@
                 </Grid>
             </Border>
 
-            <Border Grid.Row="0" Grid.Column="2" Style="{StaticResource DashboardTileStyle}">
+            <!-- Card 1: Quick Toggle -->
+            <Border x:Name="CardQuickToggle" Tag="quick_toggle"
+                    Grid.Row="0" Grid.Column="2"
+                    Style="{StaticResource DashboardTileStyle}">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
 
-                    <Grid>
+                    <!-- Drag handle -->
+                    <Border x:Name="HandleQuickToggle" Style="{StaticResource DragHandleStyle}" Grid.RowSpan="2" Panel.ZIndex="10">
+                        <TextBlock Text="&#xE76F;"
+                                   FontFamily="Segoe MDL2 Assets"
+                                   FontSize="10"
+                                   Foreground="{DynamicResource MutedTextBrush}"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"
+                                   Opacity="0.5" />
+                    </Border>
+
+                    <Grid Margin="18,26,18,0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="*" />
@@ -213,7 +254,7 @@
                         </Border>
                     </Grid>
 
-                    <StackPanel Grid.Row="1" Margin="0,14,0,0">
+                    <StackPanel Grid.Row="1" Margin="18,14,18,18">
                         <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[Dashboard_QuickToggle]}" FontSize="16" FontWeight="SemiBold" />
                         <TextBlock Text="{Binding QuickToggleSummary}"
                                    FontSize="21"
@@ -242,115 +283,134 @@
                 </Grid>
             </Border>
 
-            <Border Grid.Row="1" Grid.Column="0" Style="{StaticResource DashboardTileStyle}">
+            <!-- Card 2: Power Mode -->
+            <Border x:Name="CardPowerMode" Tag="power_mode"
+                    Grid.Row="1" Grid.Column="0"
+                    Style="{StaticResource DashboardTileStyle}">
                 <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="168" />
-                    </Grid.ColumnDefinitions>
+                    <!-- Drag handle -->
+                    <Border x:Name="HandlePowerMode" Style="{StaticResource DragHandleStyle}" Panel.ZIndex="10">
+                        <TextBlock Text="&#xE76F;"
+                                   FontFamily="Segoe MDL2 Assets"
+                                   FontSize="10"
+                                   Foreground="{DynamicResource MutedTextBrush}"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"
+                                   Opacity="0.5" />
+                    </Border>
 
-                    <StackPanel>
-                        <Border Style="{StaticResource DashboardIconBoxStyle}" Margin="0,0,0,14">
-                            <TextBlock Text="&#xE945;"
-                                       FontFamily="Segoe MDL2 Assets"
-                                       FontSize="21"
-                                       Foreground="{StaticResource AccentBrush}"
-                                       HorizontalAlignment="Center"
-                                       VerticalAlignment="Center" />
-                        </Border>
+                    <Grid Margin="18,26,18,18">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="168" />
+                        </Grid.ColumnDefinitions>
 
-                        <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[Dashboard_PowerMode]}" FontSize="16" FontWeight="SemiBold" />
-                        <TextBlock Text="{Binding CurrentPowerPlan}"
-                                   FontSize="21"
-                                   FontWeight="SemiBold"
-                                   Margin="0,4,16,0"
-                                   TextWrapping="Wrap" />
-                        <TextBlock Text="{Binding PowerPlanSummary}"
-                                   Style="{StaticResource MutedTextStyle}"
-                                   Margin="0,8,16,0" />
-                    </StackPanel>
-
-                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                        <Button Command="{Binding SetBalancedCommand}">
-                            <Button.Style>
-                                <Style TargetType="Button" BasedOn="{StaticResource ModeStackButtonStyle}">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding IsBalancedActive}" Value="True">
-                                            <Setter Property="Visibility" Value="Collapsed" />
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Button.Style>
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="&#xE9D2;"
-                                           FontFamily="Segoe MDL2 Assets"
-                                           FontSize="14"
-                                           Margin="0,0,7,0" />
-                                 <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[PowerPlan_Balanced]}" />
-                            </StackPanel>
-                        </Button>
-
-                        <Button Command="{Binding SetHighPerformanceCommand}">
-                            <Button.Style>
-                                <Style TargetType="Button" BasedOn="{StaticResource ModeStackButtonStyle}">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding IsHighPerformanceActive}" Value="True">
-                                            <Setter Property="Visibility" Value="Collapsed" />
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Button.Style>
-                            <StackPanel Orientation="Horizontal">
+                        <StackPanel>
+                            <Border Style="{StaticResource DashboardIconBoxStyle}" Margin="0,0,0,14">
                                 <TextBlock Text="&#xE945;"
                                            FontFamily="Segoe MDL2 Assets"
-                                           FontSize="14"
-                                           Margin="0,0,7,0" />
-                                 <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[PowerPlan_HighPerformance]}" />
-                            </StackPanel>
-                        </Button>
+                                           FontSize="21"
+                                           Foreground="{StaticResource AccentBrush}"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center" />
+                            </Border>
 
-                        <Button Command="{Binding SetPowerSaverCommand}">
-                            <Button.Style>
-                                <Style TargetType="Button" BasedOn="{StaticResource ModeStackButtonStyle}">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding IsPowerSaverActive}" Value="True">
-                                            <Setter Property="Visibility" Value="Collapsed" />
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Button.Style>
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="&#xE83F;"
-                                           FontFamily="Segoe MDL2 Assets"
-                                           FontSize="14"
-                                           Margin="0,0,7,0" />
-                                 <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[PowerPlan_PowerSaver]}" />
-                            </StackPanel>
-                        </Button>
+                            <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[Dashboard_PowerMode]}" FontSize="16" FontWeight="SemiBold" />
+                            <TextBlock Text="{Binding CurrentPowerPlan}"
+                                       FontSize="21"
+                                       FontWeight="SemiBold"
+                                       Margin="0,4,16,0"
+                                       TextWrapping="Wrap" />
+                            <TextBlock Text="{Binding PowerPlanSummary}"
+                                       Style="{StaticResource MutedTextStyle}"
+                                       Margin="0,8,16,0" />
+                        </StackPanel>
 
-                        <Button Command="{Binding SetUltimateCommand}">
-                            <Button.Style>
-                                <Style TargetType="Button" BasedOn="{StaticResource ModeStackButtonStyle}">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding IsUltimateActive}" Value="True">
-                                            <Setter Property="Visibility" Value="Collapsed" />
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Button.Style>
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="&#xEC4A;"
-                                           FontFamily="Segoe MDL2 Assets"
-                                           FontSize="14"
-                                           Margin="0,0,7,0" />
-                                 <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[PowerPlan_UltimatePerformance]}" />
-                            </StackPanel>
-                        </Button>
-                    </StackPanel>
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                            <Button Command="{Binding SetBalancedCommand}">
+                                <Button.Style>
+                                    <Style TargetType="Button" BasedOn="{StaticResource ModeStackButtonStyle}">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsBalancedActive}" Value="True">
+                                                <Setter Property="Visibility" Value="Collapsed" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="&#xE9D2;"
+                                               FontFamily="Segoe MDL2 Assets"
+                                               FontSize="14"
+                                               Margin="0,0,7,0" />
+                                     <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[PowerPlan_Balanced]}" />
+                                </StackPanel>
+                            </Button>
+
+                            <Button Command="{Binding SetHighPerformanceCommand}">
+                                <Button.Style>
+                                    <Style TargetType="Button" BasedOn="{StaticResource ModeStackButtonStyle}">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsHighPerformanceActive}" Value="True">
+                                                <Setter Property="Visibility" Value="Collapsed" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="&#xE945;"
+                                               FontFamily="Segoe MDL2 Assets"
+                                               FontSize="14"
+                                               Margin="0,0,7,0" />
+                                     <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[PowerPlan_HighPerformance]}" />
+                                </StackPanel>
+                            </Button>
+
+                            <Button Command="{Binding SetPowerSaverCommand}">
+                                <Button.Style>
+                                    <Style TargetType="Button" BasedOn="{StaticResource ModeStackButtonStyle}">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsPowerSaverActive}" Value="True">
+                                                <Setter Property="Visibility" Value="Collapsed" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="&#xE83F;"
+                                               FontFamily="Segoe MDL2 Assets"
+                                               FontSize="14"
+                                               Margin="0,0,7,0" />
+                                     <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[PowerPlan_PowerSaver]}" />
+                                </StackPanel>
+                            </Button>
+
+                            <Button Command="{Binding SetUltimateCommand}">
+                                <Button.Style>
+                                    <Style TargetType="Button" BasedOn="{StaticResource ModeStackButtonStyle}">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsUltimateActive}" Value="True">
+                                                <Setter Property="Visibility" Value="Collapsed" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="&#xEC4A;"
+                                               FontFamily="Segoe MDL2 Assets"
+                                               FontSize="14"
+                                               Margin="0,0,7,0" />
+                                     <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[PowerPlan_UltimatePerformance]}" />
+                                </StackPanel>
+                            </Button>
+                        </StackPanel>
+                    </Grid>
                 </Grid>
             </Border>
 
-            <Border Grid.Row="1" Grid.Column="2" Style="{StaticResource DashboardTileStyle}">
+            <!-- Card 3: Power Scheduler -->
+            <Border x:Name="CardPowerScheduler" Tag="power_scheduler"
+                    Grid.Row="1" Grid.Column="2"
+                    Style="{StaticResource DashboardTileStyle}">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
@@ -358,7 +418,18 @@
                         <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
 
-                    <Grid>
+                    <!-- Drag handle -->
+                    <Border x:Name="HandlePowerScheduler" Style="{StaticResource DragHandleStyle}" Grid.RowSpan="3" Panel.ZIndex="10">
+                        <TextBlock Text="&#xE76F;"
+                                   FontFamily="Segoe MDL2 Assets"
+                                   FontSize="10"
+                                   Foreground="{DynamicResource MutedTextBrush}"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"
+                                   Opacity="0.5" />
+                    </Border>
+
+                    <Grid Margin="18,26,18,0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="*" />
@@ -373,10 +444,9 @@
                                        HorizontalAlignment="Center"
                                        VerticalAlignment="Center" />
                         </Border>
-
                     </Grid>
 
-                    <StackPanel Grid.Row="1" Margin="0,14,0,10">
+                    <StackPanel Grid.Row="1" Margin="18,14,18,10">
                         <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[Dashboard_PowerScheduler]}" FontSize="16" FontWeight="SemiBold" />
                         <ItemsControl ItemsSource="{Binding ActiveSchedulerEvents}" Margin="0,8,0,0">
                             <ItemsControl.ItemTemplate>
@@ -407,6 +477,7 @@
                     </StackPanel>
 
                     <Button Grid.Row="2"
+                            Margin="18,0,18,18"
                             Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[Dashboard_PauseAllEvents]}"
                             Command="{Binding PauseAllEventsCommand}"
                             Style="{StaticResource SecondaryButtonStyle}"
@@ -414,14 +485,28 @@
                 </Grid>
             </Border>
 
-            <Border Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" Style="{StaticResource DashboardTileStyle}" MinHeight="300">
+            <!-- Card 4: System Performance -->
+            <Border x:Name="CardSystemPerformance" Tag="system_performance"
+                    Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3"
+                    Style="{StaticResource DashboardTileStyle}" MinHeight="300">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
 
-                    <Grid>
+                    <!-- Drag handle -->
+                    <Border x:Name="HandleSystemPerformance" Style="{StaticResource DragHandleStyle}" Grid.RowSpan="2" Panel.ZIndex="10">
+                        <TextBlock Text="&#xE76F;"
+                                   FontFamily="Segoe MDL2 Assets"
+                                   FontSize="10"
+                                   Foreground="{DynamicResource MutedTextBrush}"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"
+                                   Opacity="0.5" />
+                    </Border>
+
+                    <Grid Margin="18,26,18,0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="*" />
@@ -458,7 +543,7 @@
                         </Border>
                     </Grid>
 
-                    <Grid Grid.Row="1" Margin="0,20,0,0">
+                    <Grid Grid.Row="1" Margin="18,20,18,18">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="1.15*" />
                             <ColumnDefinition Width="18" />
@@ -588,5 +673,13 @@
                 </Grid>
             </Border>
         </Grid>
+
+        </ScrollViewer>
+
+        <!-- Drag ghost overlay — covers the entire UserControl during drag -->
+        <Canvas x:Name="DragCanvas"
+                Grid.Row="0" Grid.RowSpan="3"
+                IsHitTestVisible="False"
+                Panel.ZIndex="100" />
     </Grid>
 </UserControl>

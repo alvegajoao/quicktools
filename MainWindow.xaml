@@ -68,10 +68,10 @@
             </DockPanel>
         </Border>
 
-        <ScrollViewer Grid.Column="1"
-                      VerticalScrollBarVisibility="Auto"
-                      HorizontalScrollBarVisibility="Disabled">
-            <ContentControl Content="{Binding CurrentViewModel}" Margin="34,30,18,24" HorizontalAlignment="Stretch" />
-        </ScrollViewer>
+        <ContentControl Grid.Column="1"
+                        Content="{Binding CurrentViewModel}"
+                        Margin="34,30,18,24"
+                        HorizontalAlignment="Stretch"
+                        VerticalAlignment="Stretch" />
     </Grid>
 </Window>

@@ -2,12 +2,12 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using Microsoft.Win32;
+using QuickTools.Models;
 using QuickTools.Services;
 using QuickTools.ViewModels;
+using QuickTools.Views;
 using Forms = System.Windows.Forms;
 using Drawing = System.Drawing;
-using Drawing2D = System.Drawing.Drawing2D;
-using DrawingText = System.Drawing.Text;
 using MediaColor = System.Windows.Media.Color;
 using WpfApplication = System.Windows.Application;
 
@@ -22,6 +22,7 @@ public partial class MainWindow : Window
     private readonly UpdateService _updateService = new();
     private readonly QuickPickerWindow _quickPickerWindow;
     private readonly Forms.NotifyIcon _trayIcon;
+    private readonly TrayMenuWindow _trayMenuWindow = new();
     private bool _isExitRequested;
     private bool _hasShownTrayHint;
 
@@ -52,10 +53,14 @@ public partial class MainWindow : Window
 
     private Forms.NotifyIcon CreateTrayIcon()
     {
+        var appIcon = Drawing.Icon.ExtractAssociatedIcon(
+            System.Reflection.Assembly.GetExecutingAssembly().Location)
+            ?? Drawing.SystemIcons.Application;
+
         var trayIcon = new Forms.NotifyIcon
         {
-            Icon = Drawing.SystemIcons.Application,
-            Text = "QuickTools",
+            Icon    = appIcon,
+            Text    = "QuickTools",
             Visible = true
         };
 
@@ -66,25 +71,16 @@ public partial class MainWindow : Window
             {
                 RestoreFromTray();
             }
+            else if (args.Button == Forms.MouseButtons.Right)
+            {
+                Dispatcher.Invoke(() =>
+                {
+                    var cursor = Forms.Cursor.Position;
+                    _trayMenuWindow.ShowMenu(BuildMenuEntries(), cursor);
+                });
+            }
         };
-        trayIcon.ContextMenuStrip = CreateTrayMenu();
-        trayIcon.ContextMenuStrip.Opening += (_, _) => BuildTrayMenu(trayIcon.ContextMenuStrip);
         return trayIcon;
-    }
-
-    private static Forms.ContextMenuStrip CreateTrayMenu()
-    {
-        var useDark = IsDarkThemeActive();
-        return new Forms.ContextMenuStrip
-        {
-            BackColor = useDark ? Drawing.Color.FromArgb(22, 27, 34) : Drawing.Color.FromArgb(248, 250, 255),
-            ForeColor = useDark ? Drawing.Color.FromArgb(232, 237, 243) : Drawing.Color.FromArgb(31, 35, 40),
-            Font = new Drawing.Font("Segoe UI", 10.2f, Drawing.FontStyle.Regular),
-            Padding = new Forms.Padding(7, 8, 7, 8),
-            ShowImageMargin = true,
-            ImageScalingSize = new Drawing.Size(20, 20),
-            Renderer = new TrayMenuRenderer(useDark)
-        };
     }
 
     private async void OnLoaded(object sender, RoutedEventArgs e)
@@ -134,123 +130,69 @@ public partial class MainWindow : Window
         Activate();
     }
 
-    private void BuildTrayMenu(Forms.ContextMenuStrip menu)
+    private List<TrayMenuEntry> BuildMenuEntries()
     {
-        menu.Items.Clear();
-
-        AddTrayItem(menu, "\uE8A7", LocalizationService.Instance["Main_OpenQuickTools"], RestoreFromTray);
-        AddTraySeparator(menu);
-
-        AddTrayItem(
-            menu,
-            "\uE7C9",
-            _viewModel.AutoClickerService.IsRunning
-                ? LocalizationService.Instance["Main_StopAutoClicker"]
-                : LocalizationService.Instance["Main_StartAutoClicker"],
-            _viewModel.AutoClicker.Toggle);
-
-        AddTrayItem(
-            menu,
-            "\uE8A7",
-            _viewModel.QuickToggle.IsEnabled
-                ? LocalizationService.Instance["Main_DisableQuickToggle"]
-                : LocalizationService.Instance["Main_EnableQuickToggle"],
-            () => _viewModel.QuickToggle.IsEnabled = !_viewModel.QuickToggle.IsEnabled);
-
-        AddTrayItem(menu, "\uE9D9", LocalizationService.Instance["Main_OpenQuickToggleWheel"], () =>
+        var loc = LocalizationService.Instance;
+        var entries = new List<TrayMenuEntry>
         {
-            if (_viewModel.QuickToggle.IsEnabled)
-            {
-                _quickPickerWindow.ShowAtCursor(_viewModel.QuickToggle.WheelActions);
-            }
-        });
+            new() { Icon = "\uE8A7", Label = loc["Main_OpenQuickTools"],
+                    Action = RestoreFromTray },
 
-        AddTraySeparator(menu);
-        AddTrayItem(menu, "\uE74F", LocalizationService.Instance["QuickAction_mute_Name"], () => _viewModel.QuickToggle.QuickActionService.Execute("mute"));
-        AddTrayItem(menu, "\uE767", LocalizationService.Instance["QuickAction_vol_up_Name"], () => _viewModel.QuickToggle.QuickActionService.Execute("vol_up"));
-        AddTrayItem(menu, "\uE993", LocalizationService.Instance["QuickAction_vol_down_Name"], () => _viewModel.QuickToggle.QuickActionService.Execute("vol_down"));
-        AddTrayItem(menu, "\uE8C8", LocalizationService.Instance["QuickAction_clipboard_Name"], () => _viewModel.QuickToggle.QuickActionService.Execute("clipboard"));
-        AddTrayItem(menu, "\uE72E", LocalizationService.Instance["QuickAction_lock_Name"], () => _viewModel.QuickToggle.QuickActionService.Execute("lock"));
+            TrayMenuEntry.Sep(),
 
-        AddTraySeparator(menu);
-        AddTrayItem(menu, "\uE9D2", LocalizationService.Instance.Format("Main_PowerPrefix", LocalizationService.Instance.TranslatePowerPlanKind("Balanced")), async () => await SetPowerPlanFromTrayAsync("Balanced"));
-        AddTrayItem(menu, "\uE945", LocalizationService.Instance.Format("Main_PowerPrefix", LocalizationService.Instance.TranslatePowerPlanKind("HighPerformance")), async () => await SetPowerPlanFromTrayAsync("HighPerformance"));
-        AddTrayItem(menu, "\uE83F", LocalizationService.Instance.Format("Main_PowerPrefix", LocalizationService.Instance.TranslatePowerPlanKind("PowerSaver")), async () => await SetPowerPlanFromTrayAsync("PowerSaver"));
-        AddTrayItem(menu, "\uE823", LocalizationService.Instance["Main_PauseScheduledPowerEvents"], () => _viewModel.PowerService.PauseAllEvents());
+            new() { Icon = "\uE7C9",
+                    Label  = _viewModel.AutoClickerService.IsRunning
+                                 ? loc["Main_StopAutoClicker"]
+                                 : loc["Main_StartAutoClicker"],
+                    Action = () => Dispatcher.Invoke(_viewModel.AutoClicker.Toggle) },
 
-        AddTraySeparator(menu);
-        AddTrayItem(menu, "\uE711", LocalizationService.Instance["Main_ExitQuickTools"], ExitFromTray, Drawing.Color.FromArgb(220, 38, 38));
-    }
+            new() { Icon = "\uE8A7",
+                    Label  = _viewModel.QuickToggle.IsEnabled
+                                 ? loc["Main_DisableQuickToggle"]
+                                 : loc["Main_EnableQuickToggle"],
+                    Action = () => Dispatcher.Invoke(() =>
+                        _viewModel.QuickToggle.IsEnabled = !_viewModel.QuickToggle.IsEnabled) },
 
-    private void AddTraySeparator(Forms.ContextMenuStrip menu)
-    {
-        var separator = new Forms.ToolStripSeparator
-        {
-            Margin = new Forms.Padding(10, 6, 10, 6)
+            new() { Icon = "\uE9D9", Label = loc["Main_OpenQuickToggleWheel"],
+                    Action = () => Dispatcher.Invoke(() =>
+                    {
+                        if (_viewModel.QuickToggle.IsEnabled)
+                            _quickPickerWindow.ShowAtCursor(_viewModel.QuickToggle.WheelActions);
+                    }) },
+
+            TrayMenuEntry.Sep(),
+
+            new() { Icon = "\uE74F", Label = loc["QuickAction_mute_Name"],
+                    Action = () => Dispatcher.Invoke(() => _viewModel.QuickToggle.QuickActionService.Execute("mute")) },
+            new() { Icon = "\uE767", Label = loc["QuickAction_vol_up_Name"],
+                    Action = () => Dispatcher.Invoke(() => _viewModel.QuickToggle.QuickActionService.Execute("vol_up")) },
+            new() { Icon = "\uE993", Label = loc["QuickAction_vol_down_Name"],
+                    Action = () => Dispatcher.Invoke(() => _viewModel.QuickToggle.QuickActionService.Execute("vol_down")) },
+            new() { Icon = "\uE8C8", Label = loc["QuickAction_clipboard_Name"],
+                    Action = () => Dispatcher.Invoke(() => _viewModel.QuickToggle.QuickActionService.Execute("clipboard")) },
+            new() { Icon = "\uE72E", Label = loc["QuickAction_lock_Name"],
+                    Action = () => Dispatcher.Invoke(() => _viewModel.QuickToggle.QuickActionService.Execute("lock")) },
+
+            TrayMenuEntry.Sep(),
+
+            new() { Icon = "\uE9D2",
+                    Label  = loc.Format("Main_PowerPrefix", loc.TranslatePowerPlanKind("Balanced")),
+                    Action = () => _ = Dispatcher.InvokeAsync(async () => await SetPowerPlanFromTrayAsync("Balanced")) },
+            new() { Icon = "\uE945",
+                    Label  = loc.Format("Main_PowerPrefix", loc.TranslatePowerPlanKind("HighPerformance")),
+                    Action = () => _ = Dispatcher.InvokeAsync(async () => await SetPowerPlanFromTrayAsync("HighPerformance")) },
+            new() { Icon = "\uE83F",
+                    Label  = loc.Format("Main_PowerPrefix", loc.TranslatePowerPlanKind("PowerSaver")),
+                    Action = () => _ = Dispatcher.InvokeAsync(async () => await SetPowerPlanFromTrayAsync("PowerSaver")) },
+            new() { Icon = "\uE823", Label = loc["Main_PauseScheduledPowerEvents"],
+                    Action = () => Dispatcher.Invoke(() => _viewModel.PowerService.PauseAllEvents()) },
+
+            TrayMenuEntry.Sep(),
+
+            new() { Icon = "\uE711", Label = loc["Main_ExitQuickTools"],
+                    Action = ExitFromTray, IsDanger = true }
         };
-        menu.Items.Add(separator);
-    }
-
-    private void AddTrayItem(
-        Forms.ContextMenuStrip menu,
-        string iconGlyph,
-        string text,
-        Action action,
-        Drawing.Color? iconColor = null)
-    {
-        var item = CreateTrayMenuItem(iconGlyph, text, iconColor);
-        item.Click += (_, _) => Dispatcher.Invoke(action);
-        menu.Items.Add(item);
-    }
-
-    private void AddTrayItem(
-        Forms.ContextMenuStrip menu,
-        string iconGlyph,
-        string text,
-        Func<Task> action,
-        Drawing.Color? iconColor = null)
-    {
-        var item = CreateTrayMenuItem(iconGlyph, text, iconColor);
-        item.Click += async (_, _) =>
-        {
-            var task = await Dispatcher.InvokeAsync(action);
-            await task;
-        };
-        menu.Items.Add(item);
-    }
-
-    private static Forms.ToolStripMenuItem CreateTrayMenuItem(
-        string iconGlyph,
-        string text,
-        Drawing.Color? iconColor = null)
-    {
-        return new Forms.ToolStripMenuItem(text)
-        {
-            AutoSize = false,
-            Height = 34,
-            Width = 310,
-            Padding = new Forms.Padding(8, 0, 12, 0),
-            Image = CreateMenuIcon(iconGlyph, iconColor ?? Drawing.Color.FromArgb(37, 99, 235)),
-            ImageScaling = Forms.ToolStripItemImageScaling.None
-        };
-    }
-
-    private static Drawing.Bitmap CreateMenuIcon(string glyph, Drawing.Color color)
-    {
-        var bitmap = new Drawing.Bitmap(22, 22);
-        using var graphics = Drawing.Graphics.FromImage(bitmap);
-        graphics.Clear(Drawing.Color.Transparent);
-        graphics.TextRenderingHint = DrawingText.TextRenderingHint.AntiAliasGridFit;
-
-        using var font = new Drawing.Font("Segoe MDL2 Assets", 13.5f, Drawing.FontStyle.Regular, Drawing.GraphicsUnit.Pixel);
-        using var brush = new Drawing.SolidBrush(color);
-        var format = new Drawing.StringFormat
-        {
-            Alignment = Drawing.StringAlignment.Center,
-            LineAlignment = Drawing.StringAlignment.Center
-        };
-        graphics.DrawString(glyph, font, brush, new Drawing.RectangleF(0, 0, bitmap.Width, bitmap.Height), format);
-        return bitmap;
+        return entries;
     }
 
     private async Task SetPowerPlanFromTrayAsync(string kind)
@@ -391,17 +333,6 @@ public partial class MainWindow : Window
         return key?.GetValue("AppsUseLightTheme") is int value && value == 0;
     }
 
-    private static bool IsDarkThemeActive()
-    {
-        var current = WpfApplication.Current;
-        if (current?.Resources["WindowBackgroundColor"] is MediaColor color)
-        {
-            return color.R < 80 && color.G < 80 && color.B < 80;
-        }
-
-        return IsSystemDarkTheme();
-    }
-
     private void SetColor(string resourceKey, MediaColor color)
     {
         Resources[resourceKey] = color;
@@ -421,101 +352,10 @@ public partial class MainWindow : Window
         _systemCursorService.Restore();
         _viewModel.AutoClickerService.Stop();
         _quickPickerWindow.Close();
+        _trayMenuWindow.Close();
         _hotkeyService.Dispose();
         _quickToggleHotkeyService.Dispose();
         _trayIcon.Visible = false;
-        _trayIcon.ContextMenuStrip?.Dispose();
         _trayIcon.Dispose();
-    }
-
-    private sealed class TrayMenuRenderer : Forms.ToolStripProfessionalRenderer
-    {
-        private readonly Drawing.Color _menuBack;
-        private readonly Drawing.Color _border;
-        private readonly Drawing.Color _hover;
-        private readonly Drawing.Color _iconColumn;
-
-        public TrayMenuRenderer(bool useDark) : base(new TrayMenuColorTable(useDark))
-        {
-            _menuBack = useDark ? Drawing.Color.FromArgb(22, 27, 34) : Drawing.Color.FromArgb(248, 250, 255);
-            _border = useDark ? Drawing.Color.FromArgb(52, 62, 76) : Drawing.Color.FromArgb(226, 230, 239);
-            _hover = useDark ? Drawing.Color.FromArgb(30, 58, 95) : Drawing.Color.FromArgb(234, 241, 255);
-            _iconColumn = useDark ? Drawing.Color.FromArgb(30, 36, 45) : Drawing.Color.FromArgb(242, 246, 251);
-            RoundedEdges = true;
-        }
-
-        protected override void OnRenderToolStripBackground(Forms.ToolStripRenderEventArgs e)
-        {
-            using var brush = new Drawing.SolidBrush(_menuBack);
-            e.Graphics.FillRectangle(brush, e.AffectedBounds);
-        }
-
-        protected override void OnRenderImageMargin(Forms.ToolStripRenderEventArgs e)
-        {
-            var bounds = new Drawing.Rectangle(0, 0, 43, e.ToolStrip.Height);
-            using var brush = new Drawing.SolidBrush(_iconColumn);
-            e.Graphics.FillRectangle(brush, bounds);
-        }
-
-        protected override void OnRenderMenuItemBackground(Forms.ToolStripItemRenderEventArgs e)
-        {
-            if (!e.Item.Selected || !e.Item.Enabled)
-            {
-                return;
-            }
-
-            e.Graphics.SmoothingMode = Drawing2D.SmoothingMode.AntiAlias;
-            var rect = new Drawing.Rectangle(5, 2, e.Item.Width - 10, e.Item.Height - 4);
-            using var path = CreateRoundedRectangle(rect, 8);
-            using var brush = new Drawing.SolidBrush(_hover);
-            using var pen = new Drawing.Pen(Drawing.Color.FromArgb(190, 37, 99, 235));
-            e.Graphics.FillPath(brush, path);
-            e.Graphics.DrawPath(pen, path);
-        }
-
-        protected override void OnRenderSeparator(Forms.ToolStripSeparatorRenderEventArgs e)
-        {
-            var y = e.Item.Height / 2;
-            using var pen = new Drawing.Pen(_border);
-            e.Graphics.DrawLine(pen, 52, y, e.Item.Width - 12, y);
-        }
-
-        protected override void OnRenderToolStripBorder(Forms.ToolStripRenderEventArgs e)
-        {
-            var rect = new Drawing.Rectangle(0, 0, e.ToolStrip.Width - 1, e.ToolStrip.Height - 1);
-            using var pen = new Drawing.Pen(_border);
-            e.Graphics.DrawRectangle(pen, rect);
-        }
-
-        private static Drawing2D.GraphicsPath CreateRoundedRectangle(Drawing.Rectangle bounds, int radius)
-        {
-            var diameter = radius * 2;
-            var path = new Drawing2D.GraphicsPath();
-            path.AddArc(bounds.Left, bounds.Top, diameter, diameter, 180, 90);
-            path.AddArc(bounds.Right - diameter, bounds.Top, diameter, diameter, 270, 90);
-            path.AddArc(bounds.Right - diameter, bounds.Bottom - diameter, diameter, diameter, 0, 90);
-            path.AddArc(bounds.Left, bounds.Bottom - diameter, diameter, diameter, 90, 90);
-            path.CloseFigure();
-            return path;
-        }
-    }
-
-    private sealed class TrayMenuColorTable : Forms.ProfessionalColorTable
-    {
-        private readonly bool _useDark;
-
-        public TrayMenuColorTable(bool useDark)
-        {
-            _useDark = useDark;
-        }
-
-        public override Drawing.Color ToolStripDropDownBackground => _useDark ? Drawing.Color.FromArgb(22, 27, 34) : Drawing.Color.FromArgb(248, 250, 255);
-        public override Drawing.Color ImageMarginGradientBegin => _useDark ? Drawing.Color.FromArgb(30, 36, 45) : Drawing.Color.FromArgb(242, 246, 251);
-        public override Drawing.Color ImageMarginGradientMiddle => _useDark ? Drawing.Color.FromArgb(30, 36, 45) : Drawing.Color.FromArgb(242, 246, 251);
-        public override Drawing.Color ImageMarginGradientEnd => _useDark ? Drawing.Color.FromArgb(30, 36, 45) : Drawing.Color.FromArgb(242, 246, 251);
-        public override Drawing.Color MenuItemSelected => _useDark ? Drawing.Color.FromArgb(30, 58, 95) : Drawing.Color.FromArgb(234, 241, 255);
-        public override Drawing.Color MenuItemBorder => Drawing.Color.FromArgb(37, 99, 235);
-        public override Drawing.Color SeparatorDark => _useDark ? Drawing.Color.FromArgb(52, 62, 76) : Drawing.Color.FromArgb(226, 230, 239);
-        public override Drawing.Color SeparatorLight => _useDark ? Drawing.Color.FromArgb(52, 62, 76) : Drawing.Color.FromArgb(226, 230, 239);
     }
 }
