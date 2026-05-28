@@ -108,20 +108,6 @@ public sealed class PowerSchedulerViewModel : ObservableObject
             return;
         }
 
-        if (SelectedAction is "Shutdown" or "Restart")
-        {
-            var confirmation = MessageBox.Show(
-                $"Schedule {SelectedAction} for {executeAt:g}?",
-                "Confirm power action",
-                MessageBoxButton.YesNo,
-                MessageBoxImage.Warning);
-
-            if (confirmation != MessageBoxResult.Yes)
-            {
-                return;
-            }
-        }
-
         _powerService.AddEvent(SelectedAction, executeAt.Value);
         Message = $"{SelectedAction} scheduled for {executeAt.Value:HH:mm} ({GetFriendlyDate(executeAt.Value)}).";
     }
