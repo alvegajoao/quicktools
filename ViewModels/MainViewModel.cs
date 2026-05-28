@@ -14,6 +14,8 @@ public sealed class MainViewModel : ObservableObject
     {
         SettingsService = new SettingsService();
         Settings = SettingsService.Load();
+        Settings.Language = LocalizationService.NormalizeLanguage(Settings.Language);
+        LocalizationService.Instance.SetLanguage(Settings.Language);
 
         PowerService = new PowerService();
         var mouseInputService = new MouseInputService();
@@ -51,23 +53,24 @@ public sealed class MainViewModel : ObservableObject
         SettingsViewModel = new SettingsViewModel(SettingsService, Settings);
         SettingsViewModel.SettingsSaved += (_, _) =>
         {
+            LocalizationService.Instance.SetLanguage(Settings.Language);
             AutoClicker.Hotkey = Settings.AutoClickerHotkey;
             AutoClicker.SelectedActiveCursor = Settings.AutoClickerActiveCursor;
             QuickToggle.Hotkey = Settings.QuickToggleHotkey;
             QuickToggle.GlobalStatus = QuickToggle.IsEnabled
-                ? $"Press {QuickToggle.Hotkey} to open wheel"
-                : "Wheel is disabled";
+                ? LocalizationService.Instance.Format("Main_QuickToggleOpenWheel", QuickToggle.Hotkey)
+                : LocalizationService.Instance["Main_WheelDisabled"];
             SettingsChanged?.Invoke(this, EventArgs.Empty);
         };
 
         NavigationItems =
         [
-            new NavigationItem { Title = "Dashboard", Icon = "\uE80F", ViewModel = Dashboard },
-            new NavigationItem { Title = "Auto Clicker", Icon = "\uE7C9", ViewModel = AutoClicker },
-            new NavigationItem { Title = "Quick Toggle", Icon = "\uE8A7", ViewModel = QuickToggle },
-            new NavigationItem { Title = "Power Scheduler", Icon = "\uE823", ViewModel = PowerScheduler },
-            new NavigationItem { Title = "Power Modes", Icon = "\uE945", ViewModel = PowerModes },
-            new NavigationItem { Title = "Settings", Icon = "\uE713", ViewModel = SettingsViewModel }
+            new NavigationItem { TitleKey = "Nav_Dashboard", Icon = "\uE80F", ViewModel = Dashboard },
+            new NavigationItem { TitleKey = "Nav_AutoClicker", Icon = "\uE7C9", ViewModel = AutoClicker },
+            new NavigationItem { TitleKey = "Nav_QuickToggle", Icon = "\uE8A7", ViewModel = QuickToggle },
+            new NavigationItem { TitleKey = "Nav_PowerScheduler", Icon = "\uE823", ViewModel = PowerScheduler },
+            new NavigationItem { TitleKey = "Nav_PowerModes", Icon = "\uE945", ViewModel = PowerModes },
+            new NavigationItem { TitleKey = "Nav_Settings", Icon = "\uE713", ViewModel = SettingsViewModel }
         ];
 
         _selectedNavigationItem = NavigationItems[0];
@@ -110,8 +113,8 @@ public sealed class MainViewModel : ObservableObject
             Settings.QuickToggleWheelIds = QuickToggle.GetWheelIds().ToList();
             SettingsService.Save(Settings);
             QuickToggle.GlobalStatus = QuickToggle.IsEnabled
-                ? $"Press {QuickToggle.Hotkey} to open wheel"
-                : "Wheel is disabled";
+                ? LocalizationService.Instance.Format("Main_QuickToggleOpenWheel", QuickToggle.Hotkey)
+                : LocalizationService.Instance["Main_WheelDisabled"];
         }
 
         if (e.PropertyName == nameof(QuickToggleViewModel.WheelCount))

@@ -17,12 +17,13 @@ public sealed class DashboardViewModel : ObservableObject
     private readonly PowerService _powerService;
     private readonly AutoClickerViewModel _autoClickerViewModel;
     private readonly QuickToggleViewModel _quickToggleViewModel;
+    private bool _powerPlanReadFailed;
 
-    private string _currentPowerPlan = "Loading...";
+    private string _currentPowerPlan = "";
     private string _currentPowerPlanGuid = "";
-    private string _nextScheduledAction = "None";
-    private string _schedulerStatus = "No active events";
-    private string _schedulerSummary = "Nothing scheduled";
+    private string _nextScheduledAction = "";
+    private string _schedulerStatus = "";
+    private string _schedulerSummary = "";
     private bool _isQuickToggleActive;
 
     public DashboardViewModel(
@@ -59,6 +60,7 @@ public sealed class DashboardViewModel : ObservableObject
             {
                 OnPropertyChanged(nameof(AutoClickerElapsedTime));
                 OnPropertyChanged(nameof(AutoClickerHotkey));
+                OnPropertyChanged(nameof(AutoClickerHotkeyLabel));
                 OnPropertyChanged(nameof(AutoClickerSummary));
                 OnPropertyChanged(nameof(AutoClickerSpeedLabel));
             }
@@ -67,16 +69,27 @@ public sealed class DashboardViewModel : ObservableObject
         _quickToggleViewModel.PropertyChanged += OnQuickTogglePropertyChanged;
         _powerService.ScheduledActionChanged += (_, _) => RefreshSchedulerStatus();
         _powerService.EventsChanged += (_, _) => RefreshSchedulerStatus();
+        LocalizationService.Instance.LanguageChanged += (_, _) =>
+        {
+            OnPropertyChanged(nameof(AutoClickerStatus));
+            OnPropertyChanged(nameof(AutoClickerSummary));
+            OnPropertyChanged(nameof(AutoClickerHotkeyLabel));
+            OnPropertyChanged(nameof(QuickToggleStatus));
+            OnPropertyChanged(nameof(QuickToggleSummary));
+            OnPropertyChanged(nameof(PowerPlanSummary));
+            RefreshSchedulerStatus();
+        };
         RefreshSchedulerStatus();
     }
 
-    public string AutoClickerStatus => _autoClickerService.IsRunning ? "Running" : "Stopped";
+    public string AutoClickerStatus => LocalizationService.Instance[_autoClickerService.IsRunning ? "AutoClicker_Running" : "AutoClicker_Stopped"];
     public bool IsAutoClickerRunning => _autoClickerService.IsRunning;
     public string AutoClickerElapsedTime => _autoClickerViewModel.ElapsedTime;
     public string AutoClickerHotkey => _autoClickerViewModel.Hotkey;
+    public string AutoClickerHotkeyLabel => LocalizationService.Instance.Format("Common_Hotkey", _autoClickerViewModel.Hotkey);
     public string AutoClickerSummary => _autoClickerService.IsRunning
-        ? $"{_autoClickerViewModel.ElapsedTime} active"
-        : $"{_autoClickerViewModel.SpeedPercent}% speed";
+        ? LocalizationService.Instance.Format("Dashboard_AutoClickerSummaryActive", _autoClickerViewModel.ElapsedTime)
+        : LocalizationService.Instance.Format("Dashboard_AutoClickerSummarySpeed", _autoClickerViewModel.SpeedPercent);
     public string AutoClickerSpeedLabel => $"{_autoClickerViewModel.SpeedPercent}%";
 
     public bool IsQuickToggleActive
@@ -92,10 +105,10 @@ public sealed class DashboardViewModel : ObservableObject
         }
     }
 
-    public string QuickToggleStatus => IsQuickToggleActive ? "Enabled" : "Disabled";
+    public string QuickToggleStatus => LocalizationService.Instance[IsQuickToggleActive ? "Common_Enabled" : "Common_Disabled"];
     public string QuickToggleSummary => IsQuickToggleActive
-        ? $"{_quickToggleViewModel.WheelCount}/8 actions on {_quickToggleViewModel.Hotkey}"
-        : $"Off - {_quickToggleViewModel.WheelCount}/8 actions set";
+        ? LocalizationService.Instance.Format("Dashboard_QuickToggleSummaryEnabled", _quickToggleViewModel.WheelCount, _quickToggleViewModel.Hotkey)
+        : LocalizationService.Instance.Format("Dashboard_QuickToggleSummaryDisabled", _quickToggleViewModel.WheelCount);
     public IEnumerable<QuickAction> QuickToggleActions => _quickToggleViewModel.WheelActions;
 
     public string CurrentPowerPlan
@@ -110,9 +123,9 @@ public sealed class DashboardViewModel : ObservableObject
         }
     }
 
-    public string PowerPlanSummary => CurrentPowerPlan == "Unavailable"
-        ? "Could not read powercfg"
-        : "Current Windows mode";
+    public string PowerPlanSummary => _powerPlanReadFailed
+        ? LocalizationService.Instance["Dashboard_CouldNotReadPowerCfg"]
+        : LocalizationService.Instance["Dashboard_CurrentWindowsMode"];
 
     public bool IsBalancedActive => IsCurrentPlan(BalancedGuid);
     public bool IsHighPerformanceActive => IsCurrentPlan(HighPerformanceGuid);
@@ -155,14 +168,18 @@ public sealed class DashboardViewModel : ObservableObject
         try
         {
             var activePlan = (await _powerService.GetPowerPlansAsync()).FirstOrDefault(plan => plan.IsActive);
-            CurrentPowerPlan = activePlan?.Name ?? "Unknown";
+            _powerPlanReadFailed = false;
+            CurrentPowerPlan = activePlan?.Name ?? LocalizationService.Instance["Common_Unknown"];
             CurrentPowerPlanGuid = activePlan?.Guid ?? "";
         }
         catch
         {
-            CurrentPowerPlan = "Unavailable";
+            _powerPlanReadFailed = true;
+            CurrentPowerPlan = LocalizationService.Instance["Common_Unavailable"];
             CurrentPowerPlanGuid = "";
         }
+
+        OnPropertyChanged(nameof(PowerPlanSummary));
     }
 
     private void OnQuickTogglePropertyChanged(object? sender, PropertyChangedEventArgs e)
@@ -186,19 +203,19 @@ public sealed class DashboardViewModel : ObservableObject
 
         SchedulerStatus = activeEvents.Count switch
         {
-            0 when pausedEvents.Count == 0 => "No active events",
-            0 => "All events paused",
-            1 => "1 active event",
-            _ => $"{activeEvents.Count} active events"
+            0 when pausedEvents.Count == 0 => LocalizationService.Instance["Dashboard_NoActiveEvents"],
+            0 => LocalizationService.Instance["Dashboard_AllEventsPaused"],
+            1 => LocalizationService.Instance["Dashboard_OneActiveEvent"],
+            _ => LocalizationService.Instance.Format("Dashboard_ManyActiveEvents", activeEvents.Count)
         };
 
         SchedulerSummary = pausedEvents.Count > 0
-            ? $"{pausedEvents.Count} paused"
-            : "Ready";
+            ? LocalizationService.Instance.Format("Dashboard_PausedCount", pausedEvents.Count)
+            : LocalizationService.Instance["Common_Ready"];
 
         NextScheduledAction = nextEvent is not null
-            ? $"{nextEvent.Action} at {nextEvent.TimeLabel} ({nextEvent.DateLabel})"
-            : _powerService.ScheduledAction?.Description ?? "None";
+            ? LocalizationService.Instance.Format("Dashboard_NextScheduledAction", nextEvent.DisplayAction, nextEvent.TimeLabel, nextEvent.DateLabel)
+            : _powerService.ScheduledAction?.Description ?? LocalizationService.Instance["Common_None"];
 
         OnPropertyChanged(nameof(ActiveSchedulerEvents));
     }
@@ -212,7 +229,7 @@ public sealed class DashboardViewModel : ObservableObject
         }
         catch
         {
-            CurrentPowerPlan = "Could not change plan";
+            CurrentPowerPlan = LocalizationService.Instance.Format("PowerModes_CouldNotChangePowerPlan", "").TrimEnd();
         }
     }
 

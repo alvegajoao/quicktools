@@ -109,8 +109,8 @@ public partial class MainWindow : Window
 
         _trayIcon.ShowBalloonTip(
             2200,
-            "QuickTools is still running",
-            "Use the tray icon to open quick actions or restore the app.",
+            LocalizationService.Instance["Main_TrayStillRunningTitle"],
+            LocalizationService.Instance["Main_TrayStillRunningMessage"],
             Forms.ToolTipIcon.Info);
         _hasShownTrayHint = true;
     }
@@ -137,22 +137,26 @@ public partial class MainWindow : Window
     {
         menu.Items.Clear();
 
-        AddTrayItem(menu, "\uE8A7", "Open QuickTools", RestoreFromTray);
+        AddTrayItem(menu, "\uE8A7", LocalizationService.Instance["Main_OpenQuickTools"], RestoreFromTray);
         AddTraySeparator(menu);
 
         AddTrayItem(
             menu,
             "\uE7C9",
-            _viewModel.AutoClickerService.IsRunning ? "Stop Auto Clicker" : "Start Auto Clicker",
+            _viewModel.AutoClickerService.IsRunning
+                ? LocalizationService.Instance["Main_StopAutoClicker"]
+                : LocalizationService.Instance["Main_StartAutoClicker"],
             _viewModel.AutoClicker.Toggle);
 
         AddTrayItem(
             menu,
             "\uE8A7",
-            _viewModel.QuickToggle.IsEnabled ? "Disable Quick Toggle" : "Enable Quick Toggle",
+            _viewModel.QuickToggle.IsEnabled
+                ? LocalizationService.Instance["Main_DisableQuickToggle"]
+                : LocalizationService.Instance["Main_EnableQuickToggle"],
             () => _viewModel.QuickToggle.IsEnabled = !_viewModel.QuickToggle.IsEnabled);
 
-        AddTrayItem(menu, "\uE9D9", "Open Quick Toggle Wheel", () =>
+        AddTrayItem(menu, "\uE9D9", LocalizationService.Instance["Main_OpenQuickToggleWheel"], () =>
         {
             if (_viewModel.QuickToggle.IsEnabled)
             {
@@ -161,20 +165,20 @@ public partial class MainWindow : Window
         });
 
         AddTraySeparator(menu);
-        AddTrayItem(menu, "\uE74F", "Mute / Unmute", () => _viewModel.QuickToggle.QuickActionService.Execute("mute"));
-        AddTrayItem(menu, "\uE767", "Volume +", () => _viewModel.QuickToggle.QuickActionService.Execute("vol_up"));
-        AddTrayItem(menu, "\uE993", "Volume -", () => _viewModel.QuickToggle.QuickActionService.Execute("vol_down"));
-        AddTrayItem(menu, "\uE8C8", "Clipboard", () => _viewModel.QuickToggle.QuickActionService.Execute("clipboard"));
-        AddTrayItem(menu, "\uE72E", "Lock PC", () => _viewModel.QuickToggle.QuickActionService.Execute("lock"));
+        AddTrayItem(menu, "\uE74F", LocalizationService.Instance["QuickAction_mute_Name"], () => _viewModel.QuickToggle.QuickActionService.Execute("mute"));
+        AddTrayItem(menu, "\uE767", LocalizationService.Instance["QuickAction_vol_up_Name"], () => _viewModel.QuickToggle.QuickActionService.Execute("vol_up"));
+        AddTrayItem(menu, "\uE993", LocalizationService.Instance["QuickAction_vol_down_Name"], () => _viewModel.QuickToggle.QuickActionService.Execute("vol_down"));
+        AddTrayItem(menu, "\uE8C8", LocalizationService.Instance["QuickAction_clipboard_Name"], () => _viewModel.QuickToggle.QuickActionService.Execute("clipboard"));
+        AddTrayItem(menu, "\uE72E", LocalizationService.Instance["QuickAction_lock_Name"], () => _viewModel.QuickToggle.QuickActionService.Execute("lock"));
 
         AddTraySeparator(menu);
-        AddTrayItem(menu, "\uE9D2", "Power: Balanced", async () => await SetPowerPlanFromTrayAsync("Balanced"));
-        AddTrayItem(menu, "\uE945", "Power: High Performance", async () => await SetPowerPlanFromTrayAsync("HighPerformance"));
-        AddTrayItem(menu, "\uE83F", "Power: Power Saver", async () => await SetPowerPlanFromTrayAsync("PowerSaver"));
-        AddTrayItem(menu, "\uE823", "Pause scheduled power events", () => _viewModel.PowerService.PauseAllEvents());
+        AddTrayItem(menu, "\uE9D2", LocalizationService.Instance.Format("Main_PowerPrefix", LocalizationService.Instance.TranslatePowerPlanKind("Balanced")), async () => await SetPowerPlanFromTrayAsync("Balanced"));
+        AddTrayItem(menu, "\uE945", LocalizationService.Instance.Format("Main_PowerPrefix", LocalizationService.Instance.TranslatePowerPlanKind("HighPerformance")), async () => await SetPowerPlanFromTrayAsync("HighPerformance"));
+        AddTrayItem(menu, "\uE83F", LocalizationService.Instance.Format("Main_PowerPrefix", LocalizationService.Instance.TranslatePowerPlanKind("PowerSaver")), async () => await SetPowerPlanFromTrayAsync("PowerSaver"));
+        AddTrayItem(menu, "\uE823", LocalizationService.Instance["Main_PauseScheduledPowerEvents"], () => _viewModel.PowerService.PauseAllEvents());
 
         AddTraySeparator(menu);
-        AddTrayItem(menu, "\uE711", "Exit QuickTools", ExitFromTray, Drawing.Color.FromArgb(220, 38, 38));
+        AddTrayItem(menu, "\uE711", LocalizationService.Instance["Main_ExitQuickTools"], ExitFromTray, Drawing.Color.FromArgb(220, 38, 38));
     }
 
     private void AddTraySeparator(Forms.ContextMenuStrip menu)
@@ -297,9 +301,9 @@ public partial class MainWindow : Window
 
         _viewModel.QuickToggle.GlobalStatus = quickToggleRegistered
             ? _viewModel.QuickToggle.IsEnabled
-                ? $"Press {_viewModel.QuickToggle.Hotkey} to open wheel"
-                : "Wheel is disabled"
-            : quickToggleError ?? "Could not register Quick Toggle hotkey";
+                ? LocalizationService.Instance.Format("Main_QuickToggleOpenWheel", _viewModel.QuickToggle.Hotkey)
+                : LocalizationService.Instance["Main_WheelDisabled"]
+            : quickToggleError ?? LocalizationService.Instance["Main_QuickToggleHotkeyError"];
     }
 
     private void OnHotkeyPressed(object? sender, EventArgs e)

@@ -9,7 +9,7 @@ public sealed class QuickToggleViewModel : ObservableObject
 {
     private bool _isEnabled;
     private string _hotkey = "F7";
-    private string _globalStatus = "Wheel is disabled";
+    private string _globalStatus = "";
 
     public QuickToggleViewModel(QuickActionService quickActionService)
     {
@@ -36,6 +36,14 @@ public sealed class QuickToggleViewModel : ObservableObject
             OnPropertyChanged(nameof(WheelCount));
             OnPropertyChanged(nameof(WheelCountLabel));
         });
+
+        _globalStatus = LocalizationService.Instance["Main_WheelDisabled"];
+        LocalizationService.Instance.LanguageChanged += (_, _) =>
+        {
+            OnPropertyChanged(nameof(Status));
+            OnPropertyChanged(nameof(WheelCountLabel));
+            OnPropertyChanged(nameof(HotkeyLabel));
+        };
     }
 
     public QuickActionService QuickActionService { get; }
@@ -44,7 +52,7 @@ public sealed class QuickToggleViewModel : ObservableObject
     public IEnumerable<QuickAction> WheelActions => AllActions.Where(action => action.IsOnWheel).Take(8);
 
     public int WheelCount => AllActions.Count(action => action.IsOnWheel);
-    public string WheelCountLabel => $"{WheelCount}/8 on wheel";
+    public string WheelCountLabel => LocalizationService.Instance.Format("QuickToggle_WheelCount", WheelCount);
 
     public bool IsEnabled
     {
@@ -62,7 +70,7 @@ public sealed class QuickToggleViewModel : ObservableObject
         }
     }
 
-    public string Status => IsEnabled ? "Enabled" : "Disabled";
+    public string Status => LocalizationService.Instance[IsEnabled ? "Common_Enabled" : "Common_Disabled"];
 
     public string Hotkey
     {
@@ -72,9 +80,12 @@ public sealed class QuickToggleViewModel : ObservableObject
             if (SetProperty(ref _hotkey, value))
             {
                 OnPropertyChanged(nameof(GlobalStatus));
+                OnPropertyChanged(nameof(HotkeyLabel));
             }
         }
     }
+
+    public string HotkeyLabel => LocalizationService.Instance.Format("Common_Hotkey", Hotkey);
 
     public string GlobalStatus
     {

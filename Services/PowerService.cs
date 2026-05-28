@@ -238,7 +238,7 @@ public sealed class PowerService
         var plan = plans.FirstOrDefault(plan => plan.Guid.Equals(expectedGuid, StringComparison.OrdinalIgnoreCase));
         if (plan is null)
         {
-            throw new InvalidOperationException($"Power plan '{kind}' is not available on this system.");
+            throw new InvalidOperationException(LocalizationService.Instance.Format("PowerService_PlanUnavailable", LocalizationService.Instance.TranslatePowerPlanKind(kind)));
         }
 
         await SetPowerPlanAsync(plan.Guid);

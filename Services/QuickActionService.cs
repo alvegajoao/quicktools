@@ -9,18 +9,18 @@ public sealed class QuickActionService
 {
     public static readonly IReadOnlyList<QuickAction> AllActions =
     [
-        new() { Id = "mute",       Name = "Mute / Unmute", Icon = "\uE74F", Description = "Toggle system audio." },
-        new() { Id = "vol_up",     Name = "Volume +",      Icon = "\uE767", Description = "Increase system volume." },
-        new() { Id = "vol_down",   Name = "Volume -",      Icon = "\uE993", Description = "Decrease system volume." },
-        new() { Id = "play_pause", Name = "Play / Pause",  Icon = "\uE768", Description = "Control current media playback." },
-        new() { Id = "screenshot", Name = "Screenshot",    Icon = "\uE722", Description = "Take a screenshot." },
-        new() { Id = "lock",       Name = "Lock PC",       Icon = "\uE72E", Description = "Lock this Windows session." },
-        new() { Id = "dark_mode",  Name = "Dark Mode",     Icon = "\uE708", Description = "Toggle Windows app theme." },
-        new() { Id = "clipboard",  Name = "Clipboard",     Icon = "\uE8C8", Description = "Open clipboard history." },
-        new() { Id = "calculator", Name = "Calculator",    Icon = "\uE8EF", Description = "Open Calculator." },
-        new() { Id = "taskmgr",    Name = "Task Manager",  Icon = "\uE9D9", Description = "Open Task Manager." },
-        new() { Id = "wifi",       Name = "Wi-Fi",         Icon = "\uE701", Description = "Enable or disable Wi-Fi." },
-        new() { Id = "settings",   Name = "Settings",      Icon = "\uE713", Description = "Open Windows Settings." },
+        new() { Id = "mute", Icon = "\uE74F" },
+        new() { Id = "vol_up", Icon = "\uE767" },
+        new() { Id = "vol_down", Icon = "\uE993" },
+        new() { Id = "play_pause", Icon = "\uE768" },
+        new() { Id = "screenshot", Icon = "\uE722" },
+        new() { Id = "lock", Icon = "\uE72E" },
+        new() { Id = "dark_mode", Icon = "\uE708" },
+        new() { Id = "clipboard", Icon = "\uE8C8" },
+        new() { Id = "calculator", Icon = "\uE8EF" },
+        new() { Id = "taskmgr", Icon = "\uE9D9" },
+        new() { Id = "wifi", Icon = "\uE701" },
+        new() { Id = "settings", Icon = "\uE713" },
     ];
 
     public void Execute(string actionId)

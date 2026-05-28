@@ -14,7 +14,7 @@ public sealed class PowerModesViewModel : ObservableObject
     private const string UltimatePerformanceGuid = "e9a42b02-d5df-448d-aa00-03f14749eb61";
 
     private readonly PowerService _powerService;
-    private string _currentPlan = "Loading...";
+    private string _currentPlan = "";
     private string _currentPlanGuid = "";
     private string _message = "";
 
@@ -27,6 +27,7 @@ public sealed class PowerModesViewModel : ObservableObject
         SetHighPerformanceCommand = new AsyncRelayCommand(async () => await SetByKindAsync("HighPerformance"));
         SetPowerSaverCommand = new AsyncRelayCommand(async () => await SetByKindAsync("PowerSaver"));
         SetUltimateCommand = new AsyncRelayCommand(async () => await SetByKindAsync("UltimatePerformance"));
+        _currentPlan = LocalizationService.Instance["Common_Loading"];
     }
 
     public ObservableCollection<PowerPlan> Plans { get; } = [];
@@ -83,14 +84,14 @@ public sealed class PowerModesViewModel : ObservableObject
             }
 
             var activePlan = Plans.FirstOrDefault(plan => plan.IsActive);
-            CurrentPlan = activePlan?.Name ?? "Unknown";
+            CurrentPlan = activePlan?.Name ?? LocalizationService.Instance["Common_Unknown"];
             CurrentPlanGuid = activePlan?.Guid ?? "";
-            Message = Plans.Count == 0 ? "No power plans found." : "";
+            Message = Plans.Count == 0 ? LocalizationService.Instance["PowerModes_NoPowerPlansFound"] : "";
         }
         catch (Exception ex)
         {
-            Message = $"Could not read power plans: {ex.Message}";
-            CurrentPlan = "Unavailable";
+            Message = LocalizationService.Instance.Format("PowerModes_CouldNotReadPowerPlans", ex.Message);
+            CurrentPlan = LocalizationService.Instance["Common_Unavailable"];
             CurrentPlanGuid = "";
         }
     }
@@ -105,12 +106,12 @@ public sealed class PowerModesViewModel : ObservableObject
         try
         {
             await _powerService.SetPowerPlanAsync(guid);
-            Message = "Power plan changed.";
+            Message = LocalizationService.Instance["PowerModes_PowerPlanChanged"];
             await RefreshAsync();
         }
         catch (Exception ex)
         {
-            Message = $"Could not change power plan: {ex.Message}";
+            Message = LocalizationService.Instance.Format("PowerModes_CouldNotChangePowerPlan", ex.Message);
         }
     }
 
@@ -119,14 +120,14 @@ public sealed class PowerModesViewModel : ObservableObject
         try
         {
             await _powerService.SetPlanByKindAsync(kind);
-            Message = "Power plan changed.";
+            Message = LocalizationService.Instance["PowerModes_PowerPlanChanged"];
             await RefreshAsync();
         }
         catch (Exception ex)
         {
             Message = kind == "UltimatePerformance"
-                ? "Ultimate Performance is not available on this system."
-                : $"Could not change power plan: {ex.Message}";
+                ? LocalizationService.Instance["PowerModes_UltimateUnavailable"]
+                : LocalizationService.Instance.Format("PowerModes_CouldNotChangePowerPlan", ex.Message);
         }
     }
 

@@ -24,10 +24,23 @@ public sealed class PowerSchedulerViewModel : ObservableObject
         RemoveEventCommand = new RelayCommand(parameter => RemoveEvent(parameter as ScheduledEvent));
         ToggleEventCommand = new RelayCommand(parameter => ToggleEvent(parameter as ScheduledEvent));
         PauseAllCommand = new RelayCommand(_ => PauseAll());
+
+        LocalizationService.Instance.LanguageChanged += (_, _) =>
+        {
+            OnPropertyChanged(nameof(OverallStatus));
+            OnPropertyChanged(nameof(NextEventLabel));
+            OnPropertyChanged(nameof(EventsCountLabel));
+        };
     }
 
     public ObservableCollection<ScheduledEvent> Events { get; } = [];
-    public ObservableCollection<string> Actions { get; } = ["Shutdown", "Restart", "Suspend", "Hibernate"];
+    public ObservableCollection<LocalizedOption> ActionOptions { get; } =
+    [
+        new() { Value = "Shutdown", TextKey = "PowerAction_Shutdown" },
+        new() { Value = "Restart", TextKey = "PowerAction_Restart" },
+        new() { Value = "Suspend", TextKey = "PowerAction_Suspend" },
+        new() { Value = "Hibernate", TextKey = "PowerAction_Hibernate" }
+    ];
     public static IReadOnlyList<string> Hours { get; } = Enumerable.Range(0, 24).Select(hour => hour.ToString("00")).ToList();
     public static IReadOnlyList<string> Minutes { get; } = Enumerable.Range(0, 12).Select(step => (step * 5).ToString("00")).ToList();
 
@@ -38,9 +51,9 @@ public sealed class PowerSchedulerViewModel : ObservableObject
             var activeCount = Events.Count(item => item.IsActive);
             return activeCount switch
             {
-                0 => "No active events",
-                1 => "1 active event",
-                _ => $"{activeCount} active events"
+                0 => LocalizationService.Instance["PowerScheduler_NoActiveEvents"],
+                1 => LocalizationService.Instance["PowerScheduler_OneActiveEvent"],
+                _ => LocalizationService.Instance.Format("PowerScheduler_ManyActiveEvents", activeCount)
             };
         }
     }
@@ -51,8 +64,8 @@ public sealed class PowerSchedulerViewModel : ObservableObject
         {
             var next = Events.Where(item => item.IsActive).OrderBy(item => item.ExecuteAt).FirstOrDefault();
             return next is null
-                ? "No upcoming events"
-                : $"Next: {next.Action} at {next.TimeLabel} ({next.DateLabel})";
+                ? LocalizationService.Instance["PowerScheduler_NoUpcomingEvents"]
+                : LocalizationService.Instance.Format("PowerScheduler_NextEvent", next.DisplayAction, next.TimeLabel, next.DateLabel);
         }
     }
 
@@ -63,8 +76,8 @@ public sealed class PowerSchedulerViewModel : ObservableObject
             var activeCount = Events.Count(item => item.IsActive);
             var pausedCount = Events.Count(item => !item.IsActive);
             return pausedCount > 0
-                ? $"{activeCount} active / {pausedCount} paused"
-                : $"{Events.Count} events";
+                ? LocalizationService.Instance.Format("PowerScheduler_CountActivePaused", activeCount, pausedCount)
+                : LocalizationService.Instance.Format("PowerScheduler_CountEvents", Events.Count);
         }
     }
 
@@ -104,12 +117,16 @@ public sealed class PowerSchedulerViewModel : ObservableObject
         var executeAt = ParseExecuteAt();
         if (executeAt is null)
         {
-            Message = "Choose a valid time.";
+            Message = LocalizationService.Instance["PowerScheduler_ChooseValidTime"];
             return;
         }
 
         _powerService.AddEvent(SelectedAction, executeAt.Value);
-        Message = $"{SelectedAction} scheduled for {executeAt.Value:HH:mm} ({GetFriendlyDate(executeAt.Value)}).";
+        Message = LocalizationService.Instance.Format(
+            "PowerScheduler_ScheduledFor",
+            LocalizationService.Instance.TranslatePowerAction(SelectedAction),
+            executeAt.Value.ToString("HH:mm"),
+            GetFriendlyDate(executeAt.Value));
     }
 
     private void RemoveEvent(ScheduledEvent? scheduledEvent)
@@ -120,7 +137,7 @@ public sealed class PowerSchedulerViewModel : ObservableObject
         }
 
         _powerService.RemoveEvent(scheduledEvent.Id);
-        Message = "Event removed.";
+        Message = LocalizationService.Instance["PowerScheduler_EventRemoved"];
     }
 
     private void ToggleEvent(ScheduledEvent? scheduledEvent)
@@ -133,18 +150,18 @@ public sealed class PowerSchedulerViewModel : ObservableObject
         if (scheduledEvent.IsActive)
         {
             _powerService.PauseEvent(scheduledEvent.Id);
-            Message = "Event paused.";
+            Message = LocalizationService.Instance["PowerScheduler_EventPaused"];
             return;
         }
 
         if (scheduledEvent.ExecuteAt <= DateTime.Now)
         {
-            Message = "Cannot resume because this event time has already passed.";
+            Message = LocalizationService.Instance["PowerScheduler_CannotResumePassed"];
             return;
         }
 
         _powerService.ResumeEvent(scheduledEvent.Id);
-        Message = "Event resumed.";
+        Message = LocalizationService.Instance["PowerScheduler_EventResumed"];
     }
 
     private void PauseAll()
@@ -155,7 +172,7 @@ public sealed class PowerSchedulerViewModel : ObservableObject
         }
 
         _powerService.PauseAllEvents();
-        Message = "All events paused.";
+        Message = LocalizationService.Instance["PowerScheduler_AllEventsPaused"];
     }
 
     private void SyncEvents()
@@ -202,14 +219,14 @@ public sealed class PowerSchedulerViewModel : ObservableObject
     {
         if (executeAt.Date == DateTime.Today)
         {
-            return "today";
+            return LocalizationService.Instance["PowerScheduler_Today"].ToLowerInvariant();
         }
 
         if (executeAt.Date == DateTime.Today.AddDays(1))
         {
-            return "tomorrow";
+            return LocalizationService.Instance["PowerScheduler_Tomorrow"].ToLowerInvariant();
         }
 
-        return executeAt.ToString("dd MMM");
+        return executeAt.ToString("dd MMM", LocalizationService.Instance.Culture);
     }
 }

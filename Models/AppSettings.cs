@@ -3,6 +3,7 @@ namespace QuickTools.Models;
 public sealed class AppSettings
 {
     public string Theme { get; set; } = "System";
+    public string Language { get; set; } = "en";
     public string AutoClickerHotkey { get; set; } = "F6";
     public string AutoClickerActiveCursor { get; set; } = "Cross";
     public int AutoClickerSpeedPercent { get; set; } = 95;

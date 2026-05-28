@@ -24,7 +24,19 @@ public sealed class SettingsViewModel : ObservableObject
         ImportCommand = new RelayCommand(Import);
     }
 
-    public ObservableCollection<string> Themes { get; } = ["Light", "Dark", "System"];
+    public ObservableCollection<LocalizedOption> ThemeOptions { get; } =
+    [
+        new() { Value = "Light", TextKey = "Theme_Light" },
+        new() { Value = "Dark", TextKey = "Theme_Dark" },
+        new() { Value = "System", TextKey = "Theme_System" }
+    ];
+
+    public ObservableCollection<LocalizedOption> LanguageOptions { get; } =
+    [
+        new() { Value = "en", TextKey = "Language_en" },
+        new() { Value = "pt", TextKey = "Language_pt" }
+    ];
+
     public ObservableCollection<string> Hotkeys { get; } = ["F6", "F7", "F8", "F9", "F10", "F11", "F12"];
 
     public string SelectedTheme
@@ -79,6 +91,22 @@ public sealed class SettingsViewModel : ObservableObject
         }
     }
 
+    public string SelectedLanguage
+    {
+        get => LocalizationService.NormalizeLanguage(_settings.Language);
+        set
+        {
+            var normalized = LocalizationService.NormalizeLanguage(value);
+            if (_settings.Language == normalized)
+            {
+                return;
+            }
+
+            _settings.Language = normalized;
+            OnPropertyChanged();
+        }
+    }
+
     public string AutoClickerActiveCursor
     {
         get => _settings.AutoClickerActiveCursor;
@@ -129,19 +157,20 @@ public sealed class SettingsViewModel : ObservableObject
         {
             _settingsService.SetStartWithWindows(StartWithWindows);
             _settingsService.Save(_settings);
+            LocalizationService.Instance.SetLanguage(_settings.Language);
             SettingsSaved?.Invoke(this, EventArgs.Empty);
-            Message = "Settings saved.";
+            Message = LocalizationService.Instance["Settings_SettingsSaved"];
         }
         catch (Exception ex)
         {
-            Message = $"Could not save settings: {ex.Message}";
+            Message = LocalizationService.Instance.Format("Settings_CouldNotSave", ex.Message);
         }
     }
 
     private void Export()
     {
         System.Windows.Clipboard.SetText(_settingsService.ExportSettings(_settings));
-        Message = "Settings JSON copied to clipboard.";
+        Message = LocalizationService.Instance["Settings_ExportCopied"];
     }
 
     private void Import()
@@ -150,24 +179,26 @@ public sealed class SettingsViewModel : ObservableObject
         {
             if (!System.Windows.Clipboard.ContainsText())
             {
-                Message = "Clipboard does not contain JSON.";
+                Message = LocalizationService.Instance["Settings_ClipboardNoJson"];
                 return;
             }
 
             var imported = _settingsService.ImportSettings(System.Windows.Clipboard.GetText());
             SelectedTheme = imported.Theme;
+            SelectedLanguage = imported.Language;
             StartWithWindows = imported.StartWithWindows;
             AutoClickerHotkey  = imported.AutoClickerHotkey;
             QuickToggleHotkey  = imported.QuickToggleHotkey;
             DataFolder = string.IsNullOrWhiteSpace(imported.DataFolder)
                 ? Path.GetDirectoryName(_settingsService.SettingsPath) ?? ""
                 : imported.DataFolder;
+            LocalizationService.Instance.SetLanguage(imported.Language);
             SettingsSaved?.Invoke(this, EventArgs.Empty);
-            Message = "Settings imported from clipboard.";
+            Message = LocalizationService.Instance["Settings_Imported"];
         }
         catch (Exception ex)
         {
-            Message = $"Could not import settings: {ex.Message}";
+            Message = LocalizationService.Instance.Format("Settings_CouldNotImport", ex.Message);
         }
     }
 }

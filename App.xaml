@@ -238,7 +238,10 @@
                                         <ContentPresenter Margin="{TemplateBinding Padding}"
                                                           VerticalAlignment="Center"
                                                           HorizontalAlignment="Left"
-                                                          Content="{TemplateBinding SelectionBoxItem}" />
+                                                          Content="{TemplateBinding SelectionBoxItem}"
+                                                          ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                                                          ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}"
+                                                          ContentStringFormat="{TemplateBinding SelectionBoxItemStringFormat}" />
                                         <TextBlock Text="&#xE70D;"
                                                    FontFamily="Segoe MDL2 Assets"
                                                    FontSize="12"

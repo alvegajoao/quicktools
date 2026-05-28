@@ -1,4 +1,5 @@
 using QuickTools.Helpers;
+using QuickTools.Services;
 
 namespace QuickTools.Models;
 
@@ -13,8 +14,16 @@ public sealed class ScheduledEvent : ObservableObject
     public bool IsActive
     {
         get => _isActive;
-        set => SetProperty(ref _isActive, value);
+        set
+        {
+            if (SetProperty(ref _isActive, value))
+            {
+                OnPropertyChanged(nameof(ToggleLabel));
+            }
+        }
     }
+
+    public string DisplayAction => LocalizationService.Instance.TranslatePowerAction(Action);
 
     public string Icon => Action switch
     {
@@ -28,8 +37,20 @@ public sealed class ScheduledEvent : ObservableObject
     public string TimeLabel => ExecuteAt.ToString("HH:mm");
 
     public string DateLabel => ExecuteAt.Date == DateTime.Today
-        ? "Today"
+        ? LocalizationService.Instance["PowerScheduler_Today"]
         : ExecuteAt.Date == DateTime.Today.AddDays(1)
-            ? "Tomorrow"
-            : ExecuteAt.ToString("dd MMM");
+            ? LocalizationService.Instance["PowerScheduler_Tomorrow"]
+            : ExecuteAt.ToString("dd MMM", LocalizationService.Instance.Culture);
+
+    public string ToggleLabel => LocalizationService.Instance[IsActive ? "PowerScheduler_Pause" : "PowerScheduler_Resume"];
+
+    public ScheduledEvent()
+    {
+        LocalizationService.Instance.LanguageChanged += (_, _) =>
+        {
+            OnPropertyChanged(nameof(DisplayAction));
+            OnPropertyChanged(nameof(DateLabel));
+            OnPropertyChanged(nameof(ToggleLabel));
+        };
+    }
 }

@@ -1,6 +1,7 @@
 <UserControl x:Class="QuickTools.Views.AutoClickerView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+              xmlns:services="clr-namespace:QuickTools.Services">
     <UserControl.Resources>
         <Style x:Key="MouseButtonStyle" TargetType="Button" BasedOn="{StaticResource SecondaryButtonStyle}">
             <Setter Property="MinHeight" Value="92" />
@@ -39,11 +40,17 @@
         </Style>
     </UserControl.Resources>
 
-    <StackPanel>
-        <TextBlock Text="Auto Clicker" Style="{StaticResource PageTitleStyle}" />
-        <TextBlock Text="Fast, visible click automation with safe controls." Style="{StaticResource MutedTextStyle}" Margin="0,0,0,24" />
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[AutoClicker_Title]}" Style="{StaticResource PageTitleStyle}" />
+        <TextBlock Grid.Row="1" Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[AutoClicker_Subtitle]}" Style="{StaticResource MutedTextStyle}" Margin="0,0,0,24" />
 
-        <Border Style="{StaticResource CardStyle}" Margin="0,0,16,18">
+        <Border Grid.Row="2" Style="{StaticResource CardStyle}" Margin="0,0,16,18">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
@@ -68,23 +75,24 @@
                     <StackPanel>
                         <TextBlock Text="{Binding Status}" FontSize="30" FontWeight="SemiBold" />
                         <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
-                            <TextBlock Text="{Binding ElapsedTime, StringFormat=Active time: {0}}" Style="{StaticResource MutedTextStyle}" Margin="0,0,18,0" />
-                            <TextBlock Text="{Binding Hotkey, StringFormat=Hotkey: {0}}" Style="{StaticResource MutedTextStyle}" />
+                            <TextBlock Text="{Binding ElapsedTimeLabel}" Style="{StaticResource MutedTextStyle}" Margin="0,0,18,0" />
+                            <TextBlock Text="{Binding HotkeyLabel}" Style="{StaticResource MutedTextStyle}" />
                         </StackPanel>
                     </StackPanel>
                 </StackPanel>
 
                 <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                    <Button Content="Start" Command="{Binding StartCommand}" Height="48" MinWidth="128" Margin="0,0,10,0" />
-                    <Button Content="Stop" Command="{Binding StopCommand}" Style="{StaticResource DangerButtonStyle}" Height="48" MinWidth="128" />
+                    <Button Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[AutoClicker_Start]}" Command="{Binding StartCommand}" Height="48" MinWidth="128" Margin="0,0,10,0" />
+                    <Button Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[AutoClicker_Stop]}" Command="{Binding StopCommand}" Style="{StaticResource DangerButtonStyle}" Height="48" MinWidth="128" />
                 </StackPanel>
             </Grid>
         </Border>
 
-        <Grid>
+        <Grid Grid.Row="3">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="1.05*" />
-                <ColumnDefinition Width="0.95*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="18" />
+                <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
 
             <StackPanel Grid.Column="0">
@@ -96,7 +104,7 @@
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
                             <StackPanel>
-                                <TextBlock Text="Speed" Style="{StaticResource SectionTitleStyle}" Margin="0,0,0,4" />
+                                <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[AutoClicker_SpeedSection]}" Style="{StaticResource SectionTitleStyle}" Margin="0,0,0,4" />
                                 <TextBlock Text="{Binding IntervalLabel}" Style="{StaticResource MutedTextStyle}" />
                             </StackPanel>
                             <Border Grid.Column="1"
@@ -118,16 +126,17 @@
                                 Margin="0,6,0,4" />
 
                         <Grid>
-                            <TextBlock Text="Slow" Style="{StaticResource MutedTextStyle}" HorizontalAlignment="Left" />
-                            <TextBlock Text="Fast" Style="{StaticResource MutedTextStyle}" HorizontalAlignment="Right" />
+                            <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[AutoClicker_Slow]}" Style="{StaticResource MutedTextStyle}" HorizontalAlignment="Left" />
+                            <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[AutoClicker_Fast]}" Style="{StaticResource MutedTextStyle}" HorizontalAlignment="Right" />
                         </Grid>
                     </StackPanel>
                 </Border>
 
                 <Border Style="{StaticResource CardStyle}">
                     <StackPanel>
-                        <TextBlock Text="Mouse button" Style="{StaticResource SectionTitleStyle}" />
-                        <Grid Width="390" Height="260" HorizontalAlignment="Center">
+                        <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[AutoClicker_MouseButton]}" Style="{StaticResource SectionTitleStyle}" />
+                        <Viewbox Stretch="Uniform" HorizontalAlignment="Center">
+                            <Grid Width="390" Height="260">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*" />
                                 <ColumnDefinition Width="0.62*" />
@@ -163,16 +172,6 @@
                                     HorizontalAlignment="Center"
                                     VerticalAlignment="Top"
                                     Margin="72,34,0,0" />
-                            <Border Grid.Column="1"
-                                    Width="28"
-                                    Height="72"
-                                    CornerRadius="14"
-                                    Background="#FFFFFFFF"
-                                    BorderBrush="{DynamicResource BorderBrushSoft}"
-                                    BorderThickness="1"
-                                    HorizontalAlignment="Center"
-                                    VerticalAlignment="Top"
-                                    Margin="0,44,0,0" />
                             <Button Grid.Column="0"
                                     Command="{Binding SelectMouseButtonCommand}"
                                     CommandParameter="Left Click"
@@ -195,8 +194,8 @@
                                     </Style>
                                 </Button.Style>
                                 <StackPanel VerticalAlignment="Center">
-                                    <TextBlock Text="Left" HorizontalAlignment="Center" FontWeight="SemiBold" FontSize="17" />
-                                    <TextBlock Text="Primary" HorizontalAlignment="Center" Style="{StaticResource MutedTextStyle}" Margin="0,6,0,0" />
+                                    <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[AutoClicker_Left]}" HorizontalAlignment="Center" FontWeight="SemiBold" FontSize="17" />
+                                    <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[AutoClicker_Primary]}" HorizontalAlignment="Center" Style="{StaticResource MutedTextStyle}" Margin="0,6,0,0" />
                                 </StackPanel>
                             </Button>
 
@@ -222,8 +221,8 @@
                                     </Style>
                                 </Button.Style>
                                 <StackPanel VerticalAlignment="Center">
-                                    <TextBlock Text="Middle" HorizontalAlignment="Center" FontWeight="SemiBold" FontSize="16" />
-                                    <TextBlock Text="Wheel" HorizontalAlignment="Center" Style="{StaticResource MutedTextStyle}" Margin="0,6,0,0" />
+                                    <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[AutoClicker_Middle]}" HorizontalAlignment="Center" FontWeight="SemiBold" FontSize="16" />
+                                    <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[AutoClicker_Wheel]}" HorizontalAlignment="Center" Style="{StaticResource MutedTextStyle}" Margin="0,6,0,0" />
                                 </StackPanel>
                             </Button>
 
@@ -249,27 +248,28 @@
                                     </Style>
                                 </Button.Style>
                                 <StackPanel VerticalAlignment="Center">
-                                    <TextBlock Text="Right" HorizontalAlignment="Center" FontWeight="SemiBold" FontSize="17" />
-                                    <TextBlock Text="Secondary" HorizontalAlignment="Center" Style="{StaticResource MutedTextStyle}" Margin="0,6,0,0" />
+                                    <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[AutoClicker_Right]}" HorizontalAlignment="Center" FontWeight="SemiBold" FontSize="17" />
+                                    <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[AutoClicker_Secondary]}" HorizontalAlignment="Center" Style="{StaticResource MutedTextStyle}" Margin="0,6,0,0" />
                                 </StackPanel>
                             </Button>
-                        </Grid>
+                            </Grid>
+                        </Viewbox>
                     </StackPanel>
                 </Border>
 
                 <Border Style="{StaticResource CardStyle}">
                     <StackPanel>
-                        <TextBlock Text="Click type" Style="{StaticResource SectionTitleStyle}" />
-                        <ComboBox ItemsSource="{Binding ClickTypes}" SelectedItem="{Binding SelectedClickType}" MinWidth="240" HorizontalAlignment="Left" />
-                        <CheckBox Content="Use current mouse position" IsChecked="{Binding UseCurrentMousePosition}" Margin="0,20,0,0" />
+                        <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[AutoClicker_ClickType]}" Style="{StaticResource SectionTitleStyle}" />
+                        <ComboBox ItemsSource="{Binding ClickTypeOptions}" DisplayMemberPath="DisplayName" SelectedValuePath="Value" SelectedValue="{Binding SelectedClickType}" HorizontalAlignment="Stretch" />
+                        <CheckBox Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[AutoClicker_UseCurrentMousePosition]}" IsChecked="{Binding UseCurrentMousePosition}" Margin="0,20,0,0" />
                     </StackPanel>
                 </Border>
             </StackPanel>
 
-            <StackPanel Grid.Column="1">
+            <StackPanel Grid.Column="2">
                 <Border Style="{StaticResource CardStyle}">
                     <StackPanel>
-                        <TextBlock Text="Active cursor" Style="{StaticResource SectionTitleStyle}" />
+                        <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[AutoClicker_ActiveCursor]}" Style="{StaticResource SectionTitleStyle}" />
                         <ListBox ItemsSource="{Binding ActiveCursorOptions}"
                                  SelectedValuePath="CursorKey"
                                  SelectedValue="{Binding SelectedActiveCursor}"
@@ -308,5 +308,5 @@
 
             </StackPanel>
         </Grid>
-    </StackPanel>
+    </Grid>
 </UserControl>
