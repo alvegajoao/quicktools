@@ -1,0 +1,32 @@
+## .NET
+bin/
+obj/
+artifacts/
+TestResults/
+
+## Visual Studio / Rider
+.vs/
+.idea/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+## Build outputs
+*.appx
+*.appxbundle
+*.msix
+*.msixbundle
+*.nupkg
+*.snupkg
+
+## Logs
+*.log
+
+## OS files
+Thumbs.db
+Desktop.ini
+
+## Local app data snapshots
+settings.json
+text-rules.json
